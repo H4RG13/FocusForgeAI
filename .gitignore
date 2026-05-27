@@ -1,0 +1,40 @@
+# Laravel
+focusforge-api/.env
+focusforge-api/.env.backup
+focusforge-api/vendor/
+focusforge-api/node_modules/
+focusforge-api/storage/logs/*.log
+focusforge-api/storage/app/public/
+focusforge-api/storage/framework/cache/
+focusforge-api/storage/framework/sessions/
+focusforge-api/storage/framework/views/
+focusforge-api/bootstrap/cache/*.php
+focusforge-api/.phpunit.result.cache
+focusforge-api/coverage/
+
+# Next.js
+focusforge-web/.env.local
+focusforge-web/.env.*.local
+focusforge-web/.next/
+focusforge-web/node_modules/
+focusforge-web/out/
+focusforge-web/.turbo/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.idea/
+.vscode/settings.json
+*.suo
+*.swp
+*.swo
+
+# Docker
+.docker/
+
+# Misc
+*.log
+*.cache
