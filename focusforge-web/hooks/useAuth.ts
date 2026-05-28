@@ -21,7 +21,7 @@ export function useAuth() {
     try {
       const res = await authApi.login(data);
       setAuth(res.data.data, res.data.token);
-      router.push('/dashboard');
+      router.push(res.data.data.role === 'admin' ? '/admin' : '/dashboard');
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.data?.errors) {
         setErrors(err.response.data.errors);

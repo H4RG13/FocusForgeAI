@@ -1,28 +1,39 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Spinner from '@/components/ui/Spinner';
 import { useAuthStore } from '@/store/auth.store';
 import { authApi } from '@/lib/api/auth';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, setAuth, clearAuth, isAuthenticated } = useAuthStore();
+  const { setUser, hydrate } = useAuthStore();
   const router = useRouter();
+  const [checking, setChecking] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      authApi.me()
-        .then((res) => setAuth(res.data.data, useAuthStore.getState().token!))
-        .catch(() => { clearAuth(); router.replace('/login'); });
+    hydrate();
+    const hasToken = document.cookie.includes('ff_token');
+    if (!hasToken) {
+      router.replace('/login');
       return;
     }
-    if (user && user.role !== 'admin') {
-      router.replace('/dashboard');
-    }
-  }, [isAuthenticated, user]);
+    authApi.me()
+      .then((res) => {
+        const user = res.data.data;
+        setUser(user);
+        if (user.role !== 'admin') {
+          router.replace('/dashboard');
+        } else {
+          setIsAdmin(true);
+        }
+      })
+      .catch(() => router.replace('/login'))
+      .finally(() => setChecking(false));
+  }, []);
 
-  if (!user) {
+  if (checking) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Spinner size="lg" />
@@ -30,11 +41,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  if (user.role !== 'admin') return null;
+  if (!isAdmin) return null;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Admin top bar */}
       <header className="bg-red-600 text-white px-6 py-3 flex items-center justify-between shadow">
         <div className="flex items-center gap-3">
           <span className="font-bold text-lg">FocusForge</span>
