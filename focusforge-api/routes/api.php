@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Api\AIGenerationController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\NoteController;
+use App\Http\Controllers\Api\QuizController;
 use App\Http\Controllers\Api\TaskController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,8 +26,8 @@ Route::prefix('v1')->group(function () {
         });
 
         // Tasks — specific routes before resource to avoid conflicts
-        Route::get('tasks/today',          [TaskController::class, 'today']);
-        Route::get('tasks/overdue',        [TaskController::class, 'overdue']);
+        Route::get('tasks/today',             [TaskController::class, 'today']);
+        Route::get('tasks/overdue',           [TaskController::class, 'overdue']);
         Route::patch('tasks/{task}/complete', [TaskController::class, 'complete']);
         Route::apiResource('tasks', TaskController::class);
 
@@ -34,5 +36,17 @@ Route::prefix('v1')->group(function () {
 
         // Categories
         Route::apiResource('categories', CategoryController::class)->except(['show']);
+
+        // AI — rate limited to 20 requests per minute per user
+        Route::middleware('throttle:20,1')->group(function () {
+            Route::post('notes/{note}/summarize', [AIGenerationController::class, 'summarize']);
+            Route::post('notes/{note}/quiz',      [AIGenerationController::class, 'quiz']);
+            Route::get('ai-generations/{aiGeneration}', [AIGenerationController::class, 'show']);
+        });
+
+        // Quizzes
+        Route::get('notes/{note}/quizzes',    [QuizController::class, 'index']);
+        Route::get('quizzes/{quiz}',          [QuizController::class, 'show']);
+        Route::post('quizzes/{quiz}/submit',  [QuizController::class, 'submit']);
     });
 });
