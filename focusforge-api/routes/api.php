@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AdminStatsController;
+use App\Http\Controllers\Api\Admin\AdminUserController;
 use App\Http\Controllers\Api\AIGenerationController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
@@ -42,6 +44,18 @@ Route::prefix('v1')->group(function () {
             Route::post('notes/{note}/summarize', [AIGenerationController::class, 'summarize']);
             Route::post('notes/{note}/quiz',      [AIGenerationController::class, 'quiz']);
             Route::get('ai-generations/{aiGeneration}', [AIGenerationController::class, 'show']);
+        });
+
+        // Admin
+        Route::middleware('admin')->prefix('admin')->group(function () {
+            Route::get('stats',                              [AdminStatsController::class, 'index']);
+            Route::get('users',                              [AdminUserController::class, 'index']);
+            Route::get('users/{user}',                       [AdminUserController::class, 'show']);
+            Route::patch('users/{user}/promote',             [AdminUserController::class, 'promote']);
+            Route::patch('users/{user}/demote',              [AdminUserController::class, 'demote']);
+            Route::patch('users/{user}/ban',                 [AdminUserController::class, 'ban']);
+            Route::patch('users/{user}/unban',               [AdminUserController::class, 'unban']);
+            Route::delete('users/{user}',                    [AdminUserController::class, 'destroy']);
         });
 
         // Quizzes

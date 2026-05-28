@@ -11,7 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password', 'timezone', 'daily_focus_goal_minutes'])]
+#[Fillable(['name', 'email', 'password', 'role', 'banned_at', 'timezone', 'daily_focus_goal_minutes'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -22,6 +22,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'banned_at'         => 'datetime',
             'password'          => 'hashed',
         ];
     }
@@ -54,5 +55,15 @@ class User extends Authenticatable
     public function aiGenerations(): HasMany
     {
         return $this->hasMany(AIGeneration::class);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isBanned(): bool
+    {
+        return $this->banned_at !== null;
     }
 }

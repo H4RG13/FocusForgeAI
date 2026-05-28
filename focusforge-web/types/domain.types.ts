@@ -2,10 +2,27 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  role: 'user' | 'admin';
   timezone: string;
   daily_focus_goal_minutes: number;
   email_verified_at: string | null;
   created_at: string;
+}
+
+export interface AdminUser extends User {
+  is_banned: boolean;
+  banned_at: string | null;
+  tasks_count: number;
+  notes_count: number;
+  quizzes_count: number;
+  ai_generations_count: number;
+}
+
+export interface AdminStats {
+  users: { total: number; admins: number; new_today: number; new_week: number };
+  tasks: { total: number; completed: number; in_progress: number; overdue: number };
+  notes: { total: number; total_words: number };
+  ai: { total_generations: number; completed: number; failed: number; summaries: number; quizzes: number; total_tokens: number };
 }
 
 export interface Category {
