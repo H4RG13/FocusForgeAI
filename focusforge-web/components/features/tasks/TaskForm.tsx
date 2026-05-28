@@ -100,7 +100,7 @@ export default function TaskForm({ defaultValues, onSubmit, onCancel, loading }:
           <label className="text-sm font-medium text-gray-700">Category</label>
           <select
             className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            {...register('category_id', { valueAsNumber: true })}
+            {...register('category_id', { setValueAs: (v) => v === '' ? null : parseInt(v, 10) })}
           >
             <option value="">None</option>
             {categories?.map((cat) => (

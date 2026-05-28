@@ -13,6 +13,7 @@ class UserResource extends JsonResource
             'id'                         => $this->id,
             'name'                       => $this->name,
             'email'                      => $this->email,
+            'role'                       => $this->role,
             'timezone'                   => $this->timezone,
             'daily_focus_goal_minutes'   => $this->daily_focus_goal_minutes,
             'email_verified_at'          => $this->email_verified_at?->toIso8601String(),
