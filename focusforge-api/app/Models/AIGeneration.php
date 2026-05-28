@@ -17,6 +17,8 @@ class AIGeneration extends Model
 {
     use HasFactory;
 
+    protected $table = 'ai_generations';
+
     protected function casts(): array
     {
         return [

@@ -7,6 +7,7 @@ export const ROUTES = {
   TASK: (id: number) => `/tasks/${id}`,
   NOTES: '/notes',
   NOTE: (id: number) => `/notes/${id}`,
+  QUIZ: (id: number) => `/quizzes/${id}`,
   FOCUS: '/focus',
   ANALYTICS: '/analytics',
   AI_CHAT: '/ai-chat',
