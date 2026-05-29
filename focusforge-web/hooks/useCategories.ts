@@ -26,6 +26,20 @@ export function useCreateCategory() {
   });
 }
 
+export function useUpdateCategory() {
+  const qc = useQueryClient();
+  const { addToast } = useUIStore();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<CreateCategoryPayload> }) =>
+      categoriesApi.update(id, data).then((r) => r.data.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [CATEGORIES_KEY] });
+      addToast({ type: 'success', message: 'Category updated.' });
+    },
+  });
+}
+
 export function useDeleteCategory() {
   const qc = useQueryClient();
   const { addToast } = useUIStore();

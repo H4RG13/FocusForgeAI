@@ -7,9 +7,10 @@ import { ROUTES } from '@/lib/constants/routes';
 import { useAuthStore } from '@/store/auth.store';
 
 const navItems = [
-  { href: ROUTES.DASHBOARD, label: 'Dashboard', icon: '⊞' },
-  { href: ROUTES.TASKS, label: 'Tasks', icon: '✓' },
-  { href: ROUTES.NOTES, label: 'Notes', icon: '📄' },
+  { href: ROUTES.DASHBOARD,   label: 'Dashboard',  icon: '⊞' },
+  { href: ROUTES.TASKS,       label: 'Tasks',       icon: '✓' },
+  { href: ROUTES.NOTES,       label: 'Notes',       icon: '📄' },
+  { href: ROUTES.CATEGORIES,  label: 'Categories',  icon: '🏷️' },
 ];
 
 export default function Sidebar() {
