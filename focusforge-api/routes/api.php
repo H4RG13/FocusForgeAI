@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\AdminStatsController;
+use App\Http\Controllers\Api\Focus\AnalyticsController;
+use App\Http\Controllers\Api\Focus\FocusSessionController;
 use App\Http\Controllers\Api\Admin\AdminUserController;
 use App\Http\Controllers\Api\AIGenerationController;
 use App\Http\Controllers\Api\AuthController;
@@ -44,6 +46,21 @@ Route::prefix('v1')->group(function () {
             Route::post('notes/{note}/summarize', [AIGenerationController::class, 'summarize']);
             Route::post('notes/{note}/quiz',      [AIGenerationController::class, 'quiz']);
             Route::get('ai-generations/{aiGeneration}', [AIGenerationController::class, 'show']);
+        });
+
+        // Focus sessions
+        Route::get('focus-sessions',                          [FocusSessionController::class, 'index']);
+        Route::post('focus-sessions',                         [FocusSessionController::class, 'store']);
+        Route::patch('focus-sessions/{focusSession}/complete',[FocusSessionController::class, 'complete']);
+        Route::patch('focus-sessions/{focusSession}/abandon', [FocusSessionController::class, 'abandon']);
+        Route::delete('focus-sessions/{focusSession}',        [FocusSessionController::class, 'destroy']);
+
+        // Analytics
+        Route::prefix('analytics')->group(function () {
+            Route::get('overview', [AnalyticsController::class, 'overview']);
+            Route::get('focus',    [AnalyticsController::class, 'focus']);
+            Route::get('tasks',    [AnalyticsController::class, 'tasks']);
+            Route::get('heatmap',  [AnalyticsController::class, 'heatmap']);
         });
 
         // Admin

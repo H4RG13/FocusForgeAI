@@ -11,6 +11,8 @@ const navItems = [
   { href: ROUTES.TASKS,       label: 'Tasks',       icon: '✓' },
   { href: ROUTES.NOTES,       label: 'Notes',       icon: '📄' },
   { href: ROUTES.CATEGORIES,  label: 'Categories',  icon: '🏷️' },
+  { href: ROUTES.FOCUS,       label: 'Focus',       icon: '⏱' },
+  { href: ROUTES.ANALYTICS,   label: 'Analytics',   icon: '📊' },
 ];
 
 export default function Sidebar() {

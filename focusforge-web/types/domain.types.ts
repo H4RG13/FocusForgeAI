@@ -121,6 +121,7 @@ export interface QuizQuestionResult {
 export interface FocusSession {
   id: number;
   task_id: number | null;
+  task?: { id: number; title: string } | null;
   started_at: string;
   ended_at: string | null;
   duration_minutes: number;
@@ -128,4 +129,31 @@ export interface FocusSession {
   completed: boolean;
   notes: string | null;
   created_at: string;
+}
+
+export interface AnalyticsOverview {
+  tasks_completed: number;
+  tasks_total: number;
+  focus_sessions_total: number;
+  focus_minutes_total: number;
+  focus_hours_total: number;
+  current_streak: number;
+}
+
+export interface FocusByDay {
+  date: string;
+  minutes: number;
+  sessions: number;
+}
+
+export interface TaskByDay {
+  date: string;
+  count: number;
+}
+
+export interface HeatmapDay {
+  date: string;
+  level: 0 | 1 | 2 | 3 | 4;
+  minutes: number;
+  tasks: number;
 }
