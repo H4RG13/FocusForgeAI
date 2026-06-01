@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/layout/Sidebar';
+import FloatingAIChat from '@/components/features/ai/FloatingAIChat';
 import { useAuthStore } from '@/store/auth.store';
 import { authApi } from '@/lib/api/auth';
 import Spinner from '@/components/ui/Spinner';
@@ -40,6 +41,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="flex h-screen flex-col overflow-hidden bg-slate-50 lg:flex-row">
       <Sidebar />
       <main className="flex-1 overflow-y-auto bg-slate-50">{children}</main>
+      <FloatingAIChat />
     </div>
   );
 }

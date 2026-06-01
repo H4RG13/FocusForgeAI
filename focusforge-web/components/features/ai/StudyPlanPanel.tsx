@@ -15,7 +15,7 @@ const schema = z.object({
 });
 type FormData = z.infer<typeof schema>;
 
-export default function StudyPlanPanel() {
+export default function StudyPlanPanel({ compact = false }: { compact?: boolean }) {
   const [generation, setGeneration] = useState<AIGeneration | null>(null);
   const [polling, setPolling] = useState(false);
   const [plan, setPlan] = useState<string | null>(null);
