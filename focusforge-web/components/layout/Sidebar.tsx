@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils/format';
 import { ROUTES } from '@/lib/constants/routes';
 import { useAuthStore } from '@/store/auth.store';
+import { authApi } from '@/lib/api/auth';
 
 const navItems = [
   { href: ROUTES.DASHBOARD,  label: 'Dashboard',   icon: '⊞' },
@@ -64,24 +65,31 @@ function UserFooter() {
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const user = useAuthStore((s) => s.user);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  async function handleLogout() {
+    try { await authApi.logout(); } finally {
+      clearAuth();
+      router.push('/login');
+    }
+  }
 
   return (
     <>
-      {/* Mobile top bar */}
+      {/* Mobile top bar — logo icon only + hamburger */}
       <div className="flex h-14 items-center justify-between border-b border-gray-200 bg-white px-4 lg:hidden">
-        <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 text-white font-bold text-xs">
-            FF
-          </div>
-          <span className="font-semibold text-gray-900 text-sm">FocusForge AI</span>
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 shadow-sm">
+          <span className="text-sm font-bold text-white">FF</span>
         </div>
         <button
           onClick={() => setMobileOpen(true)}
-          className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+          className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 active:bg-gray-200"
           aria-label="Open menu"
         >
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
@@ -114,12 +122,30 @@ export default function Sidebar() {
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Menu</p>
           <NavList pathname={pathname} onNavigate={() => setMobileOpen(false)} />
+
+          {/* Mobile-only action buttons */}
+          <div className="mt-4 space-y-1 border-t border-gray-100 pt-4">
+            {user?.role === 'admin' && (
+              <button
+                onClick={() => { setMobileOpen(false); router.push('/admin'); }}
+                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
+              >
+                <span>🛡️</span> Admin Panel
+              </button>
+            )}
+            <button
+              onClick={handleLogout}
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50"
+            >
+              <span>→</span> Sign out
+            </button>
+          </div>
         </nav>
         <UserFooter />
       </aside>
 
       {/* Desktop sidebar */}
-      <aside className="hidden h-full w-64 flex-col border-r border-gray-200 bg-white lg:flex">
+      <aside className="hidden h-full w-64 shrink-0 flex-col border-r border-gray-200 bg-white lg:flex">
         <div className="flex h-16 items-center gap-2 border-b border-gray-200 px-6">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white font-bold text-sm">FF</div>
           <span className="font-semibold text-gray-900">FocusForge AI</span>
