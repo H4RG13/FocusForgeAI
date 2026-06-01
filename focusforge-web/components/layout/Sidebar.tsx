@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils/format';
 import { ROUTES } from '@/lib/constants/routes';
 import { useAuthStore } from '@/store/auth.store';
 import { authApi } from '@/lib/api/auth';
+import ProfileDropdown from './ProfileDropdown';
 
 const navItems = [
   { href: ROUTES.DASHBOARD,  label: 'Dashboard',  icon: '⊞' },
@@ -78,20 +79,23 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile top bar — logo icon only + hamburger */}
+      {/* Mobile top bar — hamburger + FF logo + profile avatar */}
       <div className="flex h-14 items-center justify-between border-b border-gray-200 bg-white px-4 lg:hidden">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 shadow-sm">
-          <span className="text-sm font-bold text-white">FF</span>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 active:bg-gray-200"
+            aria-label="Open menu"
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-600 shadow-sm">
+            <span className="text-xs font-bold text-white">FF</span>
+          </div>
         </div>
-        <button
-          onClick={() => setMobileOpen(true)}
-          className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 active:bg-gray-200"
-          aria-label="Open menu"
-        >
-          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
+        <ProfileDropdown />
       </div>
 
       {/* Mobile overlay */}
@@ -140,7 +144,6 @@ export default function Sidebar() {
             </button>
           </div>
         </nav>
-        <UserFooter />
       </aside>
 
       {/* Desktop sidebar */}
@@ -153,7 +156,6 @@ export default function Sidebar() {
           <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Menu</p>
           <NavList pathname={pathname} />
         </nav>
-        <UserFooter />
       </aside>
     </>
   );
