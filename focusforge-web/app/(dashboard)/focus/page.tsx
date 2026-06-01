@@ -1,9 +1,15 @@
+'use client';
+
+import { useEffect } from 'react';
+import { requestNotificationPermission } from '@/lib/utils/sound';
 import PomodoroTimer from '@/components/features/focus/PomodoroTimer';
 import SessionHistory from '@/components/features/focus/SessionHistory';
 
-export const metadata = { title: 'Focus — FocusForge AI' };
-
 export default function FocusPage() {
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
+
   return (
     <div className="mx-auto max-w-2xl space-y-8 p-8">
       <div>
