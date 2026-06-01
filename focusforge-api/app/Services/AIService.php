@@ -4,8 +4,10 @@ namespace App\Services;
 
 use App\AI\AIClientInterface;
 use App\AI\QuizPrompt;
+use App\AI\StudyPlanPrompt;
 use App\AI\SummaryPrompt;
 use App\Jobs\GenerateQuizJob;
+use App\Jobs\GenerateStudyPlanJob;
 use App\Jobs\GenerateSummaryJob;
 use App\Models\AIGeneration;
 use App\Models\Note;
@@ -70,6 +72,58 @@ class AIService
         GenerateQuizJob::dispatch($generation, $note, $questionCount);
 
         return $generation;
+    }
+
+    public function chat(array $messages, User $user): array
+    {
+        return $this->client->chat($messages);
+    }
+
+    public function requestStudyPlan(string $topic, string $context, User $user): AIGeneration
+    {
+        $prompt = new StudyPlanPrompt($topic, $context);
+
+        $existing = AIGeneration::where('input_hash', $prompt->inputHash())
+            ->where('type', 'study_plan')
+            ->where('status', 'completed')
+            ->first();
+
+        if ($existing) {
+            return $existing;
+        }
+
+        $generation = AIGeneration::create([
+            'user_id'          => $user->id,
+            'generatable_id'   => $user->id,
+            'generatable_type' => User::class,
+            'type'             => 'study_plan',
+            'status'           => 'pending',
+            'model'            => 'mock-gpt-4o-mini',
+            'input_hash'       => $prompt->inputHash(),
+        ]);
+
+        GenerateStudyPlanJob::dispatch($generation, $topic, $context);
+
+        return $generation;
+    }
+
+    public function processStudyPlan(AIGeneration $generation, string $topic, string $context): void
+    {
+        $generation->update(['status' => 'processing']);
+
+        try {
+            $result = $this->client->generateStudyPlan($topic, $context);
+
+            $generation->update([
+                'status'            => 'completed',
+                'result'            => ['plan' => $result['plan']],
+                'prompt_tokens'     => $result['prompt_tokens'],
+                'completion_tokens' => $result['completion_tokens'],
+                'model'             => $result['model'],
+            ]);
+        } catch (\Throwable $e) {
+            $generation->update(['status' => 'failed', 'error_message' => $e->getMessage()]);
+        }
     }
 
     public function processSummary(AIGeneration $generation, Note $note): void

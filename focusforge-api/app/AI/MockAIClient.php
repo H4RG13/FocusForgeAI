@@ -61,6 +61,56 @@ class MockAIClient implements AIClientInterface
             ?: ['Review the main concepts', 'Understand the core ideas', 'Apply the knowledge'];
     }
 
+    public function chat(array $messages): array
+    {
+        $last = end($messages);
+        $userMessage = $last['content'] ?? 'Hello';
+
+        $reply = "I'm FocusForge AI, your study assistant! You asked: \"{$userMessage}\"\n\n"
+            . "Here's what I can help you with:\n"
+            . "- **Summarize** your notes for quick review\n"
+            . "- **Generate quizzes** to test your understanding\n"
+            . "- **Create study plans** based on your topics\n"
+            . "- **Answer questions** about your study material\n\n"
+            . "*Note: This is a mock AI response. Connect an OpenAI API key to enable real AI responses.*";
+
+        return [
+            'content'           => $reply,
+            'prompt_tokens'     => str_word_count($userMessage) * 2,
+            'completion_tokens' => 80,
+            'model'             => 'mock-gpt-4o-mini',
+        ];
+    }
+
+    public function generateStudyPlan(string $topic, string $context): array
+    {
+        sleep(1);
+
+        return [
+            'plan' => "# Study Plan: {$topic}\n\n"
+                . "## Week 1 — Foundation\n"
+                . "- Review core concepts and terminology\n"
+                . "- Read introductory materials\n"
+                . "- Complete 2 Pomodoro sessions (25 min each)\n\n"
+                . "## Week 2 — Deep Dive\n"
+                . "- Study advanced topics\n"
+                . "- Practice with examples\n"
+                . "- Take a quiz to assess understanding\n\n"
+                . "## Week 3 — Application\n"
+                . "- Apply concepts to real scenarios\n"
+                . "- Review weak areas identified from quiz\n"
+                . "- Final review session\n\n"
+                . "## Tips\n"
+                . "- Use the Pomodoro technique: 25 min focus, 5 min break\n"
+                . "- Review notes within 24 hours of studying\n"
+                . "- Generate a quiz after each session\n\n"
+                . "*This is a mock study plan. Connect an OpenAI API key for personalized plans.*",
+            'prompt_tokens'     => str_word_count($topic . $context),
+            'completion_tokens' => 200,
+            'model'             => 'mock-gpt-4o-mini',
+        ];
+    }
+
     private function quizTemplates(string $title): array
     {
         return [

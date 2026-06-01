@@ -43,15 +43,22 @@ export default function LoginPage() {
               error={errors.email?.message ?? apiErrors.email?.[0]}
               {...register('email')}
             />
-            <Input
-              label="Password"
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              autoComplete="current-password"
-              error={errors.password?.message ?? apiErrors.password?.[0]}
-              {...register('password')}
-            />
+            <div className="flex flex-col gap-1">
+              <Input
+                label="Password"
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                autoComplete="current-password"
+                error={errors.password?.message ?? apiErrors.password?.[0]}
+                {...register('password')}
+              />
+              <div className="text-right">
+                <Link href="/forgot-password" className="text-xs text-indigo-600 hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
+            </div>
             <Button type="submit" className="w-full" loading={loading}>
               Sign in
             </Button>

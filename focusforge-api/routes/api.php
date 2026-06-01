@@ -16,8 +16,10 @@ Route::prefix('v1')->group(function () {
 
     // Public auth routes
     Route::prefix('auth')->group(function () {
-        Route::post('/register', [AuthController::class, 'register']);
-        Route::post('/login',    [AuthController::class, 'login']);
+        Route::post('/register',        [AuthController::class, 'register']);
+        Route::post('/login',           [AuthController::class, 'login']);
+        Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+        Route::post('/reset-password',  [AuthController::class, 'resetPassword']);
     });
 
     // Authenticated routes
@@ -45,6 +47,8 @@ Route::prefix('v1')->group(function () {
         Route::middleware('throttle:20,1')->group(function () {
             Route::post('notes/{note}/summarize', [AIGenerationController::class, 'summarize']);
             Route::post('notes/{note}/quiz',      [AIGenerationController::class, 'quiz']);
+            Route::post('ai/chat',                [AIGenerationController::class, 'chat']);
+            Route::post('ai/study-plan',          [AIGenerationController::class, 'studyPlan']);
             Route::get('ai-generations/{aiGeneration}', [AIGenerationController::class, 'show']);
         });
 
