@@ -17,7 +17,7 @@ const SUGGESTIONS = [
   'How can I improve my note-taking?',
 ];
 
-export default function ChatInterface() {
+export default function ChatInterface({ compact = false }: { compact?: boolean }) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
@@ -64,7 +64,7 @@ export default function ChatInterface() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-180px)] flex-col rounded-2xl border border-gray-200 bg-white shadow-sm">
+    <div className={`flex flex-col ${compact ? 'h-full' : 'h-[calc(100vh-180px)] rounded-2xl border border-gray-200 bg-white shadow-sm'}`}>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-5">
