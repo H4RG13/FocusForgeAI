@@ -3,7 +3,7 @@
 import { useFocusSessions, useDeleteSession } from '@/hooks/useFocus';
 import type { FocusSession } from '@/types/domain.types';
 import Button from '@/components/ui/Button';
-import Spinner from '@/components/ui/Spinner';
+import { Skeleton } from '@/components/shared/LoadingSkeleton';
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, {
@@ -58,8 +58,10 @@ export default function SessionHistory() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-8">
-        <Spinner />
+      <div className="space-y-2">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-14 rounded-lg" />
+        ))}
       </div>
     );
   }
