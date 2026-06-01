@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api\Focus;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FocusSessionResource;
+use App\Mail\FocusSessionCompletedMail;
 use App\Models\FocusSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class FocusSessionController extends Controller
 {
@@ -50,6 +52,9 @@ class FocusSessionController extends Controller
             'completed' => true,
             'ended_at'  => now(),
         ]);
+
+        $user = $request->user();
+        Mail::to($user->email)->queue(new FocusSessionCompletedMail($user, $focusSession));
 
         return response()->json(new FocusSessionResource($focusSession->fresh('task')));
     }

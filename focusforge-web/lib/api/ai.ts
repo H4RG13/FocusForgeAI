@@ -19,4 +19,10 @@ export const aiApi = {
 
   submitQuiz: (quizId: number, answers: Record<number, string>) =>
     apiClient.post<QuizSubmitResult>(`/quizzes/${quizId}/submit`, { answers }).then(r => r.data),
+
+  chat: (messages: { role: 'user' | 'assistant'; content: string }[]) =>
+    apiClient.post<{ data: { content: string; model: string } }>('/ai/chat', { messages }).then(r => r.data.data),
+
+  generateStudyPlan: (topic: string, context?: string) =>
+    apiClient.post<AIGeneration>('/ai/study-plan', { topic, context }).then(r => r.data),
 };

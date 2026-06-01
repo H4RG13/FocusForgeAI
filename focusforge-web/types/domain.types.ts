@@ -65,7 +65,7 @@ export interface AIGeneration {
   id: number;
   type: 'summary' | 'quiz' | 'study_plan' | 'chat';
   status: 'pending' | 'processing' | 'completed' | 'failed';
-  result: SummaryResult | QuizResult | null;
+  result: SummaryResult | QuizResult | StudyPlanResult | null;
   error_message?: string;
   model: string;
   prompt_tokens: number;
@@ -82,6 +82,10 @@ export interface SummaryResult {
 export interface QuizResult {
   title: string;
   questions: QuizQuestion[];
+}
+
+export interface StudyPlanResult {
+  plan: string;
 }
 
 export interface QuizQuestion {

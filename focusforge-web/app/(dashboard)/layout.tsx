@@ -39,7 +39,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50">
       <Sidebar />
-      <main className="flex flex-1 flex-col overflow-y-auto bg-slate-50">{children}</main>
+      {/* On mobile, sidebar is a drawer so main takes full width */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <main className="flex-1 overflow-y-auto bg-slate-50">{children}</main>
+      </div>
     </div>
   );
 }

@@ -4,13 +4,12 @@ namespace App\Jobs;
 
 use App\Mail\AIGenerationCompletedMail;
 use App\Models\AIGeneration;
-use App\Models\Note;
 use App\Services\AIService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Mail;
 
-class GenerateSummaryJob implements ShouldQueue
+class GenerateStudyPlanJob implements ShouldQueue
 {
     use Queueable;
 
@@ -19,12 +18,13 @@ class GenerateSummaryJob implements ShouldQueue
 
     public function __construct(
         public readonly AIGeneration $generation,
-        public readonly Note $note,
+        public readonly string $topic,
+        public readonly string $context,
     ) {}
 
     public function handle(AIService $aiService): void
     {
-        $aiService->processSummary($this->generation, $this->note);
+        $aiService->processStudyPlan($this->generation, $this->topic, $this->context);
 
         if ($this->generation->fresh()->status === 'completed') {
             $user = $this->generation->user;
