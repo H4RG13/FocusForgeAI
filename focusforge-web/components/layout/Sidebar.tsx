@@ -145,7 +145,7 @@ export default function Sidebar() {
       </aside>
 
       {/* Desktop sidebar */}
-      <aside className="hidden h-full w-64 flex-col border-r border-gray-200 bg-white lg:flex">
+      <aside className="hidden h-full w-64 shrink-0 flex-col border-r border-gray-200 bg-white lg:flex">
         <div className="flex h-16 items-center gap-2 border-b border-gray-200 px-6">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white font-bold text-sm">FF</div>
           <span className="font-semibold text-gray-900">FocusForge AI</span>
