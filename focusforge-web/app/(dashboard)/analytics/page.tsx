@@ -11,7 +11,7 @@ import OverviewStats from '@/components/features/analytics/OverviewStats';
 import FocusChart from '@/components/features/analytics/FocusChart';
 import TasksChart from '@/components/features/analytics/TasksChart';
 import ActivityHeatmap from '@/components/features/analytics/ActivityHeatmap';
-import Spinner from '@/components/ui/Spinner';
+import { Skeleton } from '@/components/shared/LoadingSkeleton';
 
 const RANGE_OPTIONS = [
   { label: '7 days', days: 7 },
@@ -52,8 +52,8 @@ export default function AnalyticsPage() {
       </div>
 
       {overviewLoading ? (
-        <div className="flex justify-center py-8">
-          <Spinner />
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-xl" />)}
         </div>
       ) : overview ? (
         <OverviewStats data={overview} />
@@ -61,26 +61,20 @@ export default function AnalyticsPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {focusLoading ? (
-          <div className="flex h-64 items-center justify-center rounded-xl border border-gray-200">
-            <Spinner />
-          </div>
+          <Skeleton className="h-64 rounded-xl" />
         ) : focusData ? (
           <FocusChart data={focusData} />
         ) : null}
 
         {tasksLoading ? (
-          <div className="flex h-64 items-center justify-center rounded-xl border border-gray-200">
-            <Spinner />
-          </div>
+          <Skeleton className="h-64 rounded-xl" />
         ) : tasksData ? (
           <TasksChart data={tasksData} />
         ) : null}
       </div>
 
       {heatmapLoading ? (
-        <div className="flex justify-center py-8">
-          <Spinner />
-        </div>
+        <Skeleton className="h-48 rounded-xl" />
       ) : heatmap ? (
         <ActivityHeatmap data={heatmap} />
       ) : null}
