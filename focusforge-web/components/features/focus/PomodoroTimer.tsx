@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useFocusStore, TimerPhase, PHASE_DURATIONS } from '@/store/focus.store';
 import { useStartSession, useAbandonSession, FOCUS_KEY, ANALYTICS_KEY } from '@/hooks/useFocus';
@@ -9,6 +9,14 @@ import { useUIStore } from '@/store/ui.store';
 import { useAuthStore } from '@/store/auth.store';
 import { playChime, sendNotification } from '@/lib/utils/sound';
 import Button from '@/components/ui/Button';
+
+const PRESETS = [
+  { label: 'Quick Focus', minutes: 15, emoji: '⚡' },
+  { label: 'Pomodoro',    minutes: 25, emoji: '🍅' },
+  { label: 'Deep Work',   minutes: 45, emoji: '💡' },
+  { label: 'Power Hour',  minutes: 60, emoji: '🔥' },
+  { label: 'Flow State',  minutes: 90, emoji: '🧠' },
+];
 
 const PHASE_LABELS: Record<TimerPhase, string> = {
   focus:       'Focus',
@@ -48,8 +56,11 @@ export default function PomodoroTimer({ taskId }: PomodoroTimerProps) {
   const store = useFocusStore();
   const {
     sessionId, phase, secondsRemaining, isRunning, durationMinutes, pomodoroCount,
-    tick, pause, resume, startBreak, resetToFocus, incrementPomodoro, skipToEnd,
+    tick, pause, resume, startBreak, resetToFocus, setDurationMinutes, incrementPomodoro, skipToEnd,
   } = store;
+
+  const [editingDuration, setEditingDuration] = useState(false);
+  const [inputValue, setInputValue] = useState(String(durationMinutes));
 
   const { addToast }  = useUIStore();
   const user          = useAuthStore((s) => s.user);
@@ -133,7 +144,21 @@ export default function PomodoroTimer({ taskId }: PomodoroTimerProps) {
   }
 
   function handleStartFocus() {
-    startMutation.mutate({ task_id: taskId, duration_minutes: 25, type: 'pomodoro' });
+    startMutation.mutate({ task_id: taskId, duration_minutes: durationMinutes, type: 'pomodoro' });
+  }
+
+  function handlePreset(minutes: number) {
+    setDurationMinutes(minutes);
+    setInputValue(String(minutes));
+    setEditingDuration(false);
+  }
+
+  function handleDurationBlur() {
+    const parsed = parseInt(inputValue, 10);
+    const clamped = Math.min(180, Math.max(1, isNaN(parsed) ? 25 : parsed));
+    setInputValue(String(clamped));
+    setDurationMinutes(clamped);
+    setEditingDuration(false);
   }
 
   function handleAbandon() {
@@ -171,6 +196,57 @@ export default function PomodoroTimer({ taskId }: PomodoroTimerProps) {
           </button>
         ))}
       </div>
+
+      {/* Preset suggestions — only when idle on focus phase */}
+      {!hasFocusSession && !isBreak && !isRunning && (
+        <div className="w-full space-y-3">
+          <p className="text-center text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+            Suggested durations
+          </p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {PRESETS.map((p) => (
+              <button
+                key={p.minutes}
+                onClick={() => handlePreset(p.minutes)}
+                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors border ${
+                  durationMinutes === p.minutes
+                    ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 dark:border-indigo-700'
+                    : 'border-gray-200 bg-white text-gray-600 hover:border-indigo-300 hover:bg-indigo-50/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-indigo-950/30'
+                }`}
+              >
+                <span>{p.emoji}</span>
+                <span>{p.label}</span>
+                <span className="text-gray-400 dark:text-gray-500">{p.minutes}m</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Custom duration input */}
+          <div className="flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <span>or</span>
+            {editingDuration ? (
+              <input
+                type="number"
+                min={1}
+                max={180}
+                value={inputValue}
+                autoFocus
+                onChange={(e) => setInputValue(e.target.value)}
+                onBlur={handleDurationBlur}
+                onKeyDown={(e) => e.key === 'Enter' && handleDurationBlur()}
+                className="w-16 rounded-lg border border-indigo-400 bg-white px-2 py-1 text-center text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-gray-100 dark:border-indigo-600"
+              />
+            ) : (
+              <button
+                onClick={() => { setInputValue(String(durationMinutes)); setEditingDuration(true); }}
+                className="rounded-lg border border-dashed border-gray-300 px-3 py-1 text-xs font-medium text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition-colors dark:border-gray-600 dark:text-gray-400 dark:hover:border-indigo-500 dark:hover:text-indigo-400"
+              >
+                ✏️ Custom: {durationMinutes}m
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* SVG ring */}
       <div className="relative flex items-center justify-center">

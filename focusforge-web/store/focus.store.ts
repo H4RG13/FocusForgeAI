@@ -19,15 +19,16 @@ interface FocusState {
   pomodoroCount:    number;
   durationMinutes:  number;
 
-  startSession:     (sessionId: number, durationMinutes: number) => void;
-  startBreak:       (phase: 'short_break' | 'long_break') => void;
-  resetToFocus:     () => void;
-  incrementPomodoro:() => void;
-  tick:             () => void;
-  pause:            () => void;
-  resume:           () => void;
-  endSession:       () => void;
-  skipToEnd:        () => void;         // admin: set timer to 3s for quick testing
+  startSession:      (sessionId: number, durationMinutes: number) => void;
+  startBreak:        (phase: 'short_break' | 'long_break') => void;
+  resetToFocus:      () => void;
+  setDurationMinutes:(minutes: number) => void;
+  incrementPomodoro: () => void;
+  tick:              () => void;
+  pause:             () => void;
+  resume:            () => void;
+  endSession:        () => void;
+  skipToEnd:         () => void;
 }
 
 export const useFocusStore = create<FocusState>()(
@@ -47,7 +48,10 @@ export const useFocusStore = create<FocusState>()(
         set({ sessionId: null, phase, secondsRemaining: PHASE_DURATIONS[phase], isRunning: true }),
 
       resetToFocus: () =>
-        set({ sessionId: null, phase: 'focus', secondsRemaining: PHASE_DURATIONS.focus, durationMinutes: 25, isRunning: false }),
+        set((s) => ({ sessionId: null, phase: 'focus', secondsRemaining: s.durationMinutes * 60, isRunning: false })),
+
+      setDurationMinutes: (minutes) =>
+        set({ durationMinutes: minutes, secondsRemaining: minutes * 60 }),
 
       incrementPomodoro: () =>
         set((s) => ({ pomodoroCount: s.pomodoroCount + 1 })),
