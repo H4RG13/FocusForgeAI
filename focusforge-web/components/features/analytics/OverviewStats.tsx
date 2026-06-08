@@ -11,8 +11,8 @@ interface StatCardProps {
 
 function StatCard({ label, value, sub, accent = 'bg-indigo-50 text-indigo-700' }: StatCardProps) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-      <p className="text-xs font-medium uppercase tracking-wider text-gray-400">{label}</p>
+    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+      <p className="text-xs font-medium uppercase tracking-wider text-gray-400 dark:text-gray-500">{label}</p>
       <p className={`mt-1 text-3xl font-bold ${accent.split(' ')[1] ?? 'text-gray-900'}`}>
         {value}
       </p>

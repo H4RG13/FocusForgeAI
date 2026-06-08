@@ -18,7 +18,7 @@ function SessionRow({ session }: { session: FocusSession }) {
   const deleteMutation = useDeleteSession();
 
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
+    <div className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 dark:border-gray-800 dark:bg-gray-800/50">
       <div
         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
           session.completed
@@ -29,15 +29,15 @@ function SessionRow({ session }: { session: FocusSession }) {
         {session.completed ? '✓' : '✗'}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-gray-800">
+        <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
           {session.task?.title ?? 'Free focus'}
-          <span className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs text-gray-500">
+          <span className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs text-gray-500 dark:bg-gray-700 dark:text-gray-400">
             {session.type}
           </span>
         </p>
-        <p className="text-xs text-gray-400">{formatDate(session.started_at)}</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500">{formatDate(session.started_at)}</p>
       </div>
-      <span className="shrink-0 text-sm font-semibold text-gray-700">
+      <span className="shrink-0 text-sm font-semibold text-gray-700 dark:text-gray-300">
         {session.duration_minutes ?? 0} min
       </span>
       <Button

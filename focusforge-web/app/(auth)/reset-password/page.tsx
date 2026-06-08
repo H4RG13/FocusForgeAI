@@ -44,7 +44,7 @@ export default function ResetPasswordPage() {
 
   if (!token || !email) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 dark:bg-gray-950">
         <div className="text-center">
           <p className="text-sm text-red-500">Invalid reset link. Please request a new one.</p>
           <Link href="/forgot-password" className="mt-4 block text-sm font-medium text-indigo-600 hover:underline">
@@ -62,19 +62,19 @@ export default function ResetPasswordPage() {
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-600 text-white font-bold text-xl">
             FF
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Set new password</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Set new password</h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {done ? 'Your password has been updated.' : `Resetting password for ${email}`}
           </p>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
           {done ? (
             <div className="text-center space-y-4">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-2xl">
                 ✅
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 Your password has been reset successfully. You can now sign in with your new password.
               </p>
               <Link href="/login" className="block">
@@ -84,7 +84,7 @@ export default function ResetPasswordPage() {
           ) : (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {error && (
-                <p className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600">{error}</p>
+                <p className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600 dark:bg-red-900/30 dark:text-red-400">{error}</p>
               )}
               <Input
                 label="New password"

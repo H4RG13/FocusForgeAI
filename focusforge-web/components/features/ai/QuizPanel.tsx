@@ -40,7 +40,7 @@ export default function QuizPanel({ noteId }: QuizPanelProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-700">AI Quiz</h3>
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">AI Quiz</h3>
         <Button
           size="sm"
           variant="secondary"
@@ -64,11 +64,11 @@ export default function QuizPanel({ noteId }: QuizPanelProps) {
           {quizzes.map((quiz) => (
             <li
               key={quiz.id}
-              className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2"
+              className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2 dark:border-gray-700 dark:bg-gray-900"
             >
               <div>
-                <p className="text-sm font-medium text-gray-800">{quiz.title}</p>
-                <p className="text-xs text-gray-400">
+                <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{quiz.title}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">
                   {quiz.attempts_count} attempt{quiz.attempts_count !== 1 ? 's' : ''}
                   {quiz.score !== null ? ` · Best: ${quiz.score}%` : ''}
                 </p>
