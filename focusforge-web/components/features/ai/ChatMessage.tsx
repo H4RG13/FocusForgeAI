@@ -17,7 +17,7 @@ export default function ChatMessage({ role, content }: ChatMessageProps) {
       <div className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
         isUser
           ? 'bg-indigo-600 text-white rounded-tr-sm'
-          : 'bg-gray-100 text-gray-900 rounded-tl-sm'
+          : 'bg-gray-100 text-gray-900 rounded-tl-sm dark:bg-gray-800 dark:text-gray-100'
       }`}>
         {content.split('\n').map((line, i) => (
           <span key={i}>

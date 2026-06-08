@@ -17,7 +17,7 @@ const SUGGESTIONS = [
   'How can I improve my note-taking?',
 ];
 
-export default function ChatInterface() {
+export default function ChatInterface({ compact = false }: { compact?: boolean }) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
@@ -64,7 +64,7 @@ export default function ChatInterface() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-180px)] flex-col rounded-2xl border border-gray-200 bg-white shadow-sm">
+    <div className={`flex flex-col ${compact ? 'h-full' : 'h-[calc(100vh-180px)] rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900'}`}>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-5">
@@ -77,7 +77,7 @@ export default function ChatInterface() {
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-100 text-sm font-semibold text-violet-700">
               AI
             </div>
-            <div className="flex items-center gap-1 rounded-2xl rounded-tl-sm bg-gray-100 px-4 py-3">
+            <div className="flex items-center gap-1 rounded-2xl rounded-tl-sm bg-gray-100 px-4 py-3 dark:bg-gray-800">
               <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:0ms]" />
               <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:150ms]" />
               <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:300ms]" />
@@ -90,14 +90,14 @@ export default function ChatInterface() {
 
       {/* Suggestions (shown when only the greeting is present) */}
       {messages.length === 1 && (
-        <div className="border-t border-gray-100 px-6 py-3">
-          <p className="mb-2 text-xs text-gray-400">Try asking:</p>
+        <div className="border-t border-gray-100 px-6 py-3 dark:border-gray-800">
+          <p className="mb-2 text-xs text-gray-400 dark:text-gray-500">Try asking:</p>
           <div className="flex flex-wrap gap-2">
             {SUGGESTIONS.map((s) => (
               <button
                 key={s}
                 onClick={() => sendMessage(s)}
-                className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs text-gray-600 transition-colors hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700"
+                className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs text-gray-600 transition-colors hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-indigo-950 dark:hover:border-indigo-800 dark:hover:text-indigo-300"
               >
                 {s}
               </button>
@@ -107,7 +107,7 @@ export default function ChatInterface() {
       )}
 
       {/* Input */}
-      <div className="border-t border-gray-200 p-4">
+      <div className="border-t border-gray-200 p-4 dark:border-gray-700">
         <div className="flex gap-3 items-end">
           <textarea
             ref={inputRef}
@@ -116,7 +116,7 @@ export default function ChatInterface() {
             onKeyDown={handleKeyDown}
             placeholder="Ask me anything about studying…"
             rows={2}
-            className="flex-1 resize-none rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flex-1 resize-none rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500"
           />
           <Button
             onClick={() => sendMessage(input)}
@@ -127,7 +127,7 @@ export default function ChatInterface() {
             Send
           </Button>
         </div>
-        <p className="mt-1.5 text-xs text-gray-400">Press Enter to send · Shift+Enter for new line</p>
+        <p className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">Press Enter to send · Shift+Enter for new line</p>
       </div>
     </div>
   );

@@ -65,7 +65,7 @@ export default function CategoriesPage() {
             {categories.map((cat) => (
               <li
                 key={cat.id}
-                className="flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm"
+                className="flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm dark:border-gray-700 dark:bg-gray-900"
               >
                 <div className="flex items-center gap-3">
                   {/* Color swatch */}
@@ -74,9 +74,9 @@ export default function CategoriesPage() {
                     style={{ backgroundColor: cat.color }}
                   />
                   <div>
-                    <p className="font-medium text-gray-900">{cat.name}</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{cat.name}</p>
                     {cat.icon && (
-                      <p className="text-xs text-gray-400">{cat.icon}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500">{cat.icon}</p>
                     )}
                   </div>
                   {/* Badge preview */}
@@ -122,7 +122,7 @@ export default function CategoriesPage() {
       {/* Delete confirm modal */}
       <Modal open={!!confirmDelete} onClose={() => setConfirmDelete(null)} title="Delete Category">
         <div className="space-y-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Are you sure you want to delete <strong>{confirmDelete?.name}</strong>?
             Tasks and notes in this category will not be deleted, but they will become uncategorised.
           </p>
