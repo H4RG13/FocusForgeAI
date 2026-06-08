@@ -3,13 +3,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils/format';
 import { ROUTES } from '@/lib/constants/routes';
 import { useAuthStore } from '@/store/auth.store';
 import { authApi } from '@/lib/api/auth';
 import ProfileDropdown from './ProfileDropdown';
-import ThemeToggle from '@/components/ui/ThemeToggle';
 
 const navItems = [
   { href: ROUTES.DASHBOARD,  label: 'Dashboard',  icon: '⊞' },
@@ -53,7 +51,6 @@ export default function Sidebar() {
   const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { theme, setTheme } = useTheme();
 
   async function handleLogout() {
     try { await authApi.logout(); } finally {
@@ -80,10 +77,7 @@ export default function Sidebar() {
             <span className="text-xs font-bold text-white">FF</span>
           </div>
         </div>
-        <div className="flex items-center gap-1">
-          <ThemeToggle />
-          <ProfileDropdown />
-        </div>
+        <ProfileDropdown />
       </div>
 
       {/* Mobile overlay */}
@@ -116,14 +110,6 @@ export default function Sidebar() {
 
           {/* Mobile-only action buttons */}
           <div className="mt-4 space-y-1 border-t border-gray-100 pt-4 dark:border-gray-800">
-            {/* Dark mode toggle */}
-            <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-            >
-              <span>{theme === 'dark' ? '☀️' : '🌙'}</span>
-              {theme === 'dark' ? 'Light mode' : 'Dark mode'}
-            </button>
             {user?.role === 'admin' && (
               <button
                 onClick={() => { setMobileOpen(false); router.push('/admin'); }}
