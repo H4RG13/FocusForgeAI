@@ -49,7 +49,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
 
         <Card className="space-y-4">
           <div className="flex items-start justify-between gap-4">
-            <h1 className={`text-xl font-semibold ${task.status === 'done' ? 'line-through text-gray-400' : 'text-gray-900'}`}>
+            <h1 className={`text-xl font-semibold ${task.status === 'done' ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-gray-100'}`}>
               {task.title}
             </h1>
             {task.status !== 'done' && (
@@ -65,10 +65,10 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
           </div>
 
           {task.description && (
-            <p className="text-sm text-gray-600 leading-relaxed">{task.description}</p>
+            <p className="text-sm text-gray-600 leading-relaxed dark:text-gray-400">{task.description}</p>
           )}
 
-          <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
+          <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
             <Badge color={PRIORITY_COLORS[task.priority]}>{task.priority}</Badge>
             <Badge color={STATUS_COLORS[task.status]}>{task.status.replace('_', ' ')}</Badge>
             {task.category && (
@@ -80,12 +80,12 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
 
           <dl className="grid grid-cols-2 gap-3 text-sm">
             <div>
-              <dt className="text-gray-400 text-xs uppercase tracking-wide">Due Date</dt>
-              <dd className="mt-0.5 font-medium text-gray-700">{formatDate(task.due_date)}</dd>
+              <dt className="text-gray-400 text-xs uppercase tracking-wide dark:text-gray-500">Due Date</dt>
+              <dd className="mt-0.5 font-medium text-gray-700 dark:text-gray-300">{formatDate(task.due_date)}</dd>
             </div>
             <div>
-              <dt className="text-gray-400 text-xs uppercase tracking-wide">Created</dt>
-              <dd className="mt-0.5 font-medium text-gray-700">{formatDate(task.created_at)}</dd>
+              <dt className="text-gray-400 text-xs uppercase tracking-wide dark:text-gray-500">Created</dt>
+              <dd className="mt-0.5 font-medium text-gray-700 dark:text-gray-300">{formatDate(task.created_at)}</dd>
             </div>
             {task.completed_at && (
               <div>

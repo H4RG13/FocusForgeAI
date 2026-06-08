@@ -65,7 +65,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
         <div className="space-y-4">
           {quiz.questions.map((q, index) => (
             <Card key={q.id} className="space-y-3">
-              <p className="font-medium text-gray-800">
+              <p className="font-medium text-gray-800 dark:text-gray-200">
                 <span className="text-indigo-500 font-bold mr-2">{index + 1}.</span>
                 {q.question}
               </p>
@@ -78,8 +78,8 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
                       onClick={() => handleSelect(q.id, option)}
                       className={`text-left rounded-lg border px-4 py-2.5 text-sm transition-colors ${
                         selected
-                          ? 'border-indigo-500 bg-indigo-50 text-indigo-700 font-medium'
-                          : 'border-gray-200 bg-white text-gray-700 hover:border-indigo-300 hover:bg-indigo-50/50'
+                          ? 'border-indigo-500 bg-indigo-50 text-indigo-700 font-medium dark:bg-indigo-950/50 dark:text-indigo-300'
+                          : 'border-gray-200 bg-white text-gray-700 hover:border-indigo-300 hover:bg-indigo-50/50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-indigo-800 dark:hover:bg-indigo-950/30'
                       }`}
                     >
                       {option}
@@ -111,8 +111,8 @@ function QuizResults({ quiz, result, onRetry, onBack }: {
   onRetry: () => void;
   onBack: () => void;
 }) {
-  const scoreColor = result.score >= 80 ? 'text-green-600' : result.score >= 50 ? 'text-yellow-600' : 'text-red-600';
-  const scoreBg   = result.score >= 80 ? 'bg-green-50'    : result.score >= 50 ? 'bg-yellow-50'    : 'bg-red-50';
+  const scoreColor = result.score >= 80 ? 'text-green-600 dark:text-green-400' : result.score >= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400';
+  const scoreBg   = result.score >= 80 ? 'bg-green-50 dark:bg-green-950/30'   : result.score >= 50 ? 'bg-yellow-50 dark:bg-yellow-950/30'   : 'bg-red-50 dark:bg-red-950/30';
 
   return (
     <div className="flex flex-col">
@@ -120,9 +120,9 @@ function QuizResults({ quiz, result, onRetry, onBack }: {
       <div className="mx-auto w-full max-w-2xl p-6 space-y-6">
         {/* Score card */}
         <Card className={`text-center space-y-1 ${scoreBg}`}>
-          <p className="text-sm text-gray-500">Your Score</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Your Score</p>
           <p className={`text-5xl font-bold ${scoreColor}`}>{result.score}%</p>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
             {result.correct} of {result.total} correct
           </p>
         </Card>
@@ -135,8 +135,8 @@ function QuizResults({ quiz, result, onRetry, onBack }: {
                 <span className={`mt-0.5 shrink-0 text-lg ${r.is_correct ? 'text-green-500' : 'text-red-500'}`}>
                   {r.is_correct ? '✓' : '✗'}
                 </span>
-                <p className="font-medium text-gray-800 text-sm">
-                  <span className="text-gray-400 mr-1">{i + 1}.</span>{r.question}
+                <p className="font-medium text-gray-800 text-sm dark:text-gray-200">
+                  <span className="text-gray-400 mr-1 dark:text-gray-500">{i + 1}.</span>{r.question}
                 </p>
               </div>
               {!r.is_correct && (
@@ -145,7 +145,7 @@ function QuizResults({ quiz, result, onRetry, onBack }: {
                   <p className="text-green-700 font-medium">Correct: {r.correct_answer}</p>
                 </div>
               )}
-              <p className="ml-6 text-xs text-gray-500 italic">{r.explanation}</p>
+              <p className="ml-6 text-xs text-gray-500 italic dark:text-gray-400">{r.explanation}</p>
             </Card>
           ))}
         </div>

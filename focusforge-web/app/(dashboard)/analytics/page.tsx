@@ -31,18 +31,18 @@ export default function AnalyticsPage() {
     <div className="space-y-8 p-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
-          <p className="mt-1 text-sm text-gray-500">Your productivity at a glance.</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Analytics</h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Your productivity at a glance.</p>
         </div>
-        <div className="flex gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1">
+        <div className="flex gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1 dark:border-gray-700 dark:bg-gray-800">
           {RANGE_OPTIONS.map((o) => (
             <button
               key={o.days}
               onClick={() => setDays(o.days)}
               className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                 days === o.days
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-900 dark:text-gray-100'
+                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
               }`}
             >
               {o.label}

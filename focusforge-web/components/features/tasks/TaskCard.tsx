@@ -15,14 +15,14 @@ export default function TaskCard({ task, onEdit }: TaskCardProps) {
   const deleteTask = useDeleteTask();
 
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+    <div className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-900">
       {/* Complete checkbox */}
       <button
         onClick={() => task.status !== 'done' && completeTask.mutate(task.id)}
         className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
           task.status === 'done'
             ? 'border-green-500 bg-green-500 text-white'
-            : 'border-gray-300 hover:border-indigo-500'
+            : 'border-gray-300 hover:border-indigo-500 dark:border-gray-600'
         }`}
       >
         {task.status === 'done' && (
@@ -34,11 +34,11 @@ export default function TaskCard({ task, onEdit }: TaskCardProps) {
 
       {/* Content */}
       <div className="min-w-0 flex-1">
-        <p className={`text-sm font-medium ${task.status === 'done' ? 'line-through text-gray-400' : 'text-gray-900'}`}>
+        <p className={`text-sm font-medium ${task.status === 'done' ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-gray-100'}`}>
           {task.title}
         </p>
         {task.description && (
-          <p className="mt-0.5 text-xs text-gray-500 line-clamp-1">{task.description}</p>
+          <p className="mt-0.5 text-xs text-gray-500 line-clamp-1 dark:text-gray-400">{task.description}</p>
         )}
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
           <Badge color={PRIORITY_COLORS[task.priority]}>{task.priority}</Badge>
@@ -59,7 +59,7 @@ export default function TaskCard({ task, onEdit }: TaskCardProps) {
         {onEdit && (
           <button
             onClick={() => onEdit(task)}
-            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300"
           >
             ✎
           </button>

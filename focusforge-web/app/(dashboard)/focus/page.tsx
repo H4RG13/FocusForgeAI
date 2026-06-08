@@ -13,8 +13,8 @@ export default function FocusPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-8 p-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Focus Timer</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Focus Timer</h1>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Use the Pomodoro technique to stay in the zone.
         </p>
       </div>
@@ -22,7 +22,7 @@ export default function FocusPage() {
       <PomodoroTimer />
 
       <section>
-        <h2 className="mb-4 text-lg font-semibold text-gray-800">Session History</h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-200">Session History</h2>
         <SessionHistory />
       </section>
     </div>

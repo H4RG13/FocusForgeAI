@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils/format';
 import Spinner from '@/components/ui/Spinner';
+import ProfileDropdown from '@/components/layout/ProfileDropdown';
 import { useAuthStore } from '@/store/auth.store';
 import { authApi } from '@/lib/api/auth';
 
@@ -14,7 +15,7 @@ const adminNav = [
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { setUser, clearAuth, user, hydrate } = useAuthStore();
+  const { setUser, user, hydrate } = useAuthStore();
   const router   = useRouter();
   const pathname = usePathname();
   const [checking,    setChecking]    = useState(true);
@@ -45,13 +46,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   if (!isAdmin) return null;
-
-  const handleLogout = async () => {
-    try { await authApi.logout(); } finally {
-      clearAuth();
-      router.push('/login');
-    }
-  };
 
   function NavItems({ onNavigate }: { onNavigate?: () => void }) {
     return (
@@ -89,28 +83,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-slate-50 lg:flex-row">
+    <div className="flex h-screen flex-col overflow-hidden bg-slate-50 dark:bg-gray-950 lg:flex-row">
 
       {/* ── Mobile top bar ── */}
       <div className="flex h-14 shrink-0 items-center justify-between border-b border-slate-200 bg-slate-900 px-4 lg:hidden">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500 text-white text-xs font-bold">
-            A
-          </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500/20 px-2 py-0.5 text-xs font-semibold text-red-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
-            Admin
-          </span>
-        </div>
         <button
           onClick={() => setMobileOpen(true)}
           className="rounded-lg p-2 text-slate-400 hover:bg-white/10 active:bg-white/20"
           aria-label="Open admin menu"
         >
-          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-500 text-white text-xs font-bold">A</div>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500/20 px-2 py-0.5 text-xs font-semibold text-red-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+            Admin
+          </span>
+        </div>
+        <ProfileDropdown />
       </div>
 
       {/* ── Mobile overlay ── */}
@@ -143,25 +136,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <nav className="flex-1 px-3 py-4 space-y-0.5">
           <NavItems onNavigate={() => setMobileOpen(false)} />
         </nav>
-        {user && (
-          <div className="border-t border-slate-700/50 p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-sm font-semibold text-red-400">
-                {user.name.charAt(0).toUpperCase()}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-white">{user.name}</p>
-                <p className="truncate text-xs text-slate-400">{user.email}</p>
-              </div>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="mt-3 w-full rounded-lg px-3 py-1.5 text-left text-xs font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-colors"
-            >
-              Sign out
-            </button>
-          </div>
-        )}
       </aside>
 
       {/* ── Desktop sidebar ── */}
@@ -176,40 +150,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <nav className="flex-1 px-3 py-4 space-y-0.5">
           <NavItems />
         </nav>
-        {user && (
-          <div className="border-t border-slate-700/50 p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-sm font-semibold text-red-400">
-                {user.name.charAt(0).toUpperCase()}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-white">{user.name}</p>
-                <p className="truncate text-xs text-slate-400">{user.email}</p>
-              </div>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="mt-3 w-full rounded-lg px-3 py-1.5 text-left text-xs font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-colors"
-            >
-              Sign out
-            </button>
-          </div>
-        )}
       </aside>
 
       {/* ── Content ── */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Desktop-only top bar */}
-        <header className="hidden lg:flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-6 shadow-sm">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700">
+        <header className="hidden lg:flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700 dark:bg-red-900/30 dark:text-red-400">
             <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
             Admin Mode
           </span>
-          <p className="text-sm text-slate-500">
-            Logged in as <span className="font-medium text-slate-800">{user?.email}</span>
-          </p>
+          <ProfileDropdown />
         </header>
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto bg-slate-50 p-4 dark:bg-gray-950 lg:p-6">{children}</main>
       </div>
     </div>
   );

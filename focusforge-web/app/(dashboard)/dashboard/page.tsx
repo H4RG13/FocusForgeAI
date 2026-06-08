@@ -27,33 +27,33 @@ export default function DashboardPage() {
       <div className="p-6 space-y-6">
         {/* Welcome */}
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
             Good day{user?.name ? `, ${user.name.split(' ')[0]}` : ''}! 👋
           </h2>
-          <p className="text-sm text-gray-500 mt-1">Here's what needs your attention today.</p>
+          <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">Here's what needs your attention today.</p>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Card className="text-center">
             <p className="text-3xl font-bold text-indigo-600">{todayTasks?.length ?? 0}</p>
-            <p className="text-sm text-gray-500 mt-1">Due Today</p>
+            <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">Due Today</p>
           </Card>
           <Card className="text-center">
             <p className="text-3xl font-bold text-red-500">{overdueTasks?.length ?? 0}</p>
-            <p className="text-sm text-gray-500 mt-1">Overdue</p>
+            <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">Overdue</p>
           </Card>
           <Card className="text-center">
             <p className="text-3xl font-bold text-green-600">
               {todayTasks?.filter((t) => t.status === 'done').length ?? 0}
             </p>
-            <p className="text-sm text-gray-500 mt-1">Completed Today</p>
+            <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">Completed Today</p>
           </Card>
         </div>
 
         {/* Due Today */}
         <div>
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">Due Today</h3>
+          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Due Today</h3>
           {loadingToday ? (
             <ListSkeleton count={3} />
           ) : todayTasks?.length ? (
@@ -61,7 +61,7 @@ export default function DashboardPage() {
               {todayTasks.map((task) => <TaskCard key={task.id} task={task} />)}
             </div>
           ) : (
-            <p className="text-sm text-gray-400 rounded-xl border border-dashed border-gray-200 p-6 text-center">
+            <p className="text-sm text-gray-400 rounded-xl border border-dashed border-gray-200 p-6 text-center dark:border-gray-700 dark:text-gray-500">
               No tasks due today — enjoy your day!
             </p>
           )}

@@ -38,9 +38,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-slate-50 lg:flex-row">
+    <div className="flex h-screen flex-col overflow-hidden bg-slate-50 dark:bg-gray-950 lg:flex-row">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto bg-slate-50">{children}</main>
+      <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-gray-950">{children}</main>
       <FloatingAIChat />
     </div>
   );

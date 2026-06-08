@@ -57,26 +57,26 @@ export default function SettingsPage() {
       <div>
         <button
           onClick={() => router.back()}
-          className="mb-4 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
+          className="mb-4 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors dark:text-gray-400 dark:hover:text-gray-200"
         >
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
           Back
         </button>
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        <p className="mt-1 text-sm text-gray-500">Manage your profile and preferences.</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Settings</h1>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage your profile and preferences.</p>
       </div>
 
       {/* Profile card */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
         <div className="mb-6 flex items-center gap-4">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-600 text-2xl font-bold text-white">
             {user?.name.charAt(0).toUpperCase()}
           </div>
           <div>
-            <p className="text-lg font-semibold text-gray-900">{user?.name}</p>
-            <p className="text-sm text-gray-500">{user?.email}</p>
+            <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{user?.name}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{user?.email}</p>
             {user?.role === 'admin' && (
               <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
                 Admin
@@ -94,9 +94,9 @@ export default function SettingsPage() {
           />
 
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">Timezone</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Timezone</label>
             <select
-              className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               {...register('timezone')}
             >
               {TIMEZONES.map((tz) => (
@@ -106,21 +106,21 @@ export default function SettingsPage() {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">
-              Daily focus goal <span className="text-gray-400 font-normal">(minutes)</span>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Daily focus goal <span className="text-gray-400 font-normal dark:text-gray-500">(minutes)</span>
             </label>
             <input
               type="number"
               min={15}
               max={720}
               step={15}
-              className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               {...register('daily_focus_goal_minutes', { valueAsNumber: true })}
             />
             {errors.daily_focus_goal_minutes && (
               <p className="text-xs text-red-500">{errors.daily_focus_goal_minutes.message}</p>
             )}
-            <p className="text-xs text-gray-400">Between 15 and 720 minutes (12 hours)</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500">Between 15 and 720 minutes (12 hours)</p>
           </div>
 
           <div className="pt-2">
@@ -130,20 +130,20 @@ export default function SettingsPage() {
       </div>
 
       {/* Account info */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-base font-semibold text-gray-900">Account</h2>
-        <div className="space-y-3 text-sm text-gray-600">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+        <h2 className="mb-4 text-base font-semibold text-gray-900 dark:text-gray-100">Account</h2>
+        <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
           <div className="flex justify-between">
-            <span className="text-gray-500">Email</span>
-            <span className="font-medium text-gray-900">{user?.email}</span>
+            <span className="text-gray-500 dark:text-gray-400">Email</span>
+            <span className="font-medium text-gray-900 dark:text-gray-100">{user?.email}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">Role</span>
-            <span className="font-medium capitalize text-gray-900">{user?.role}</span>
+            <span className="text-gray-500 dark:text-gray-400">Role</span>
+            <span className="font-medium capitalize text-gray-900 dark:text-gray-100">{user?.role}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">Member since</span>
-            <span className="font-medium text-gray-900">
+            <span className="text-gray-500 dark:text-gray-400">Member since</span>
+            <span className="font-medium text-gray-900 dark:text-gray-100">
               {user?.created_at ? new Date(user.created_at).toLocaleDateString() : '—'}
             </span>
           </div>

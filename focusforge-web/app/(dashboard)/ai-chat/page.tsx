@@ -12,14 +12,14 @@ export default function AIChatPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-6 lg:p-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">AI Assistant</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">AI Assistant</h1>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Chat with your AI study assistant or generate a personalized study plan.
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 rounded-xl bg-gray-100 p-1 w-fit">
+      <div className="flex gap-1 rounded-xl bg-gray-100 p-1 w-fit dark:bg-gray-800">
         {([
           { key: 'chat',       label: '💬 Chat' },
           { key: 'study-plan', label: '📋 Study Plan' },
@@ -29,8 +29,8 @@ export default function AIChatPage() {
             onClick={() => setTab(key)}
             className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
               tab === key
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-900 dark:text-gray-100'
+                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
             }`}
           >
             {label}
