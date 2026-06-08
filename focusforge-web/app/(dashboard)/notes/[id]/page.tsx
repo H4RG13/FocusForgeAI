@@ -66,14 +66,14 @@ export default function NoteDetailPage({ params }: { params: Promise<{ id: strin
               <div>
                 {editing ? (
                   <input
-                    className="text-2xl font-bold text-gray-900 w-full border-b border-indigo-400 bg-transparent pb-1 focus:outline-none"
+                    className="text-2xl font-bold text-gray-900 w-full border-b border-indigo-400 bg-transparent pb-1 focus:outline-none dark:text-gray-100"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                   />
                 ) : (
-                  <h1 className="text-2xl font-bold text-gray-900">{note.title}</h1>
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{note.title}</h1>
                 )}
-                <p className="mt-1 text-xs text-gray-400">
+                <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
                   {note.word_count} words · Updated {formatDate(note.updated_at)}
                 </p>
               </div>
@@ -92,17 +92,17 @@ export default function NoteDetailPage({ params }: { params: Promise<{ id: strin
               </div>
             </div>
 
-            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm min-h-[400px]">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm min-h-[400px] dark:border-gray-700 dark:bg-gray-900">
               {editing ? (
                 <textarea
-                  className="w-full h-full min-h-[360px] text-sm text-gray-700 leading-relaxed resize-none focus:outline-none"
+                  className="w-full h-full min-h-[360px] text-sm text-gray-700 leading-relaxed resize-none focus:outline-none dark:text-gray-300 dark:bg-transparent"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Write your notes here…"
                 />
               ) : (
-                <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap">
-                  {note.content || <span className="text-gray-400 italic">No content yet. Click Edit to add some.</span>}
+                <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap dark:text-gray-300">
+                  {note.content || <span className="text-gray-400 italic dark:text-gray-500">No content yet. Click Edit to add some.</span>}
                 </div>
               )}
             </div>
@@ -110,10 +110,10 @@ export default function NoteDetailPage({ params }: { params: Promise<{ id: strin
 
           {/* AI sidebar */}
           <div className="space-y-6">
-            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
               <SummaryPanel noteId={noteId} />
             </div>
-            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
               <QuizPanel noteId={noteId} />
             </div>
           </div>

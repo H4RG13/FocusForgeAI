@@ -51,9 +51,9 @@ export default function TaskForm({ defaultValues, onSubmit, onCancel, loading }:
       />
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Description</label>
+        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
         <textarea
-          className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500"
           rows={3}
           placeholder="Optional details…"
           {...register('description')}
@@ -62,9 +62,9 @@ export default function TaskForm({ defaultValues, onSubmit, onCancel, loading }:
 
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Priority</label>
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Priority</label>
           <select
-            className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
             {...register('priority')}
           >
             <option value="low">Low</option>
@@ -75,9 +75,9 @@ export default function TaskForm({ defaultValues, onSubmit, onCancel, loading }:
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Status</label>
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
           <select
-            className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
             {...register('status')}
           >
             <option value="todo">To Do</option>
@@ -97,9 +97,9 @@ export default function TaskForm({ defaultValues, onSubmit, onCancel, loading }:
         />
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Category</label>
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
           <select
-            className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
             {...register('category_id', { setValueAs: (v) => v === '' ? null : parseInt(v, 10) })}
           >
             <option value="">None</option>

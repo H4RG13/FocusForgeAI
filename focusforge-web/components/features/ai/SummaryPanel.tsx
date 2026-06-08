@@ -39,7 +39,7 @@ export default function SummaryPanel({ noteId }: SummaryPanelProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-700">AI Summary</h3>
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">AI Summary</h3>
         <Button
           size="sm"
           variant="secondary"
@@ -65,16 +65,16 @@ export default function SummaryPanel({ noteId }: SummaryPanelProps) {
       )}
 
       {result && (
-        <Card className="space-y-3 bg-indigo-50 border-indigo-100">
-          <div className="prose prose-sm max-w-none text-gray-800 whitespace-pre-wrap">
+        <Card className="space-y-3 bg-indigo-50 border-indigo-100 dark:bg-indigo-950/40 dark:border-indigo-900">
+          <div className="prose prose-sm max-w-none text-gray-800 whitespace-pre-wrap dark:text-gray-200">
             {result.summary}
           </div>
           {result.key_points?.length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Key Points</p>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 dark:text-gray-400">Key Points</p>
               <ul className="list-disc list-inside space-y-1">
                 {result.key_points.map((point, i) => (
-                  <li key={i} className="text-sm text-gray-700">{point}</li>
+                  <li key={i} className="text-sm text-gray-700 dark:text-gray-300">{point}</li>
                 ))}
               </ul>
             </div>

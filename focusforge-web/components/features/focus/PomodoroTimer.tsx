@@ -142,10 +142,10 @@ export default function PomodoroTimer({ taskId }: PomodoroTimerProps) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-6 rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+    <div className="flex flex-col items-center gap-6 rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-900">
 
       {/* Pomodoro count */}
-      <div className="flex items-center gap-1 text-sm text-gray-400">
+      <div className="flex items-center gap-1 text-sm text-gray-400 dark:text-gray-500">
         {Array.from({ length: 4 }).map((_, i) => (
           <span key={i} className={i < (pomodoroCount % 4) || (pomodoroCount > 0 && pomodoroCount % 4 === 0) ? 'text-red-500' : 'text-gray-200'}>
             🍅
@@ -164,7 +164,7 @@ export default function PomodoroTimer({ taskId }: PomodoroTimerProps) {
             className={`rounded-full px-3 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed ${
               phase === p
                 ? PHASE_TAB_ACTIVE[p]
-                : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                : 'bg-gray-100 text-gray-400 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-500 dark:hover:bg-gray-700'
             }`}
           >
             {PHASE_LABELS[p]}
@@ -187,7 +187,7 @@ export default function PomodoroTimer({ taskId }: PomodoroTimerProps) {
           <span className={`text-5xl font-bold tabular-nums ${PHASE_COLORS[phase]}`}>
             {formatTime(secondsRemaining)}
           </span>
-          <span className="mt-1 text-sm text-gray-400">{PHASE_LABELS[phase]}</span>
+          <span className="mt-1 text-sm text-gray-400 dark:text-gray-500">{PHASE_LABELS[phase]}</span>
         </div>
       </div>
 

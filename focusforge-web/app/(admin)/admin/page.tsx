@@ -14,14 +14,14 @@ interface StatCardProps {
 
 function StatCard({ label, value, sub, accent, icon }: StatCardProps) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-slate-400">{label}</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-slate-400 dark:text-gray-500">{label}</p>
           <p className={`mt-1.5 text-3xl font-bold ${accent}`}>
             {typeof value === 'number' ? value.toLocaleString() : value}
           </p>
-          {sub && <p className="mt-0.5 text-xs text-slate-400">{sub}</p>}
+          {sub && <p className="mt-0.5 text-xs text-slate-400 dark:text-gray-500">{sub}</p>}
         </div>
         <span className="text-2xl">{icon}</span>
       </div>
@@ -31,10 +31,10 @@ function StatCard({ label, value, sub, accent, icon }: StatCardProps) {
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-      <span className="h-px flex-1 bg-slate-200" />
+    <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-500">
+      <span className="h-px flex-1 bg-slate-200 dark:bg-gray-700" />
       <span>{children}</span>
-      <span className="h-px flex-1 bg-slate-200" />
+      <span className="h-px flex-1 bg-slate-200 dark:bg-gray-700" />
     </h2>
   );
 }
@@ -64,8 +64,8 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Admin Dashboard</h1>
-        <p className="mt-1 text-sm text-slate-500">System-wide overview</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-gray-100">Admin Dashboard</h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-gray-400">System-wide overview</p>
       </div>
 
       <section className="space-y-4">

@@ -89,7 +89,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-slate-50 lg:flex-row">
+    <div className="flex h-screen flex-col overflow-hidden bg-slate-50 dark:bg-gray-950 lg:flex-row">
 
       {/* ── Mobile top bar ── */}
       <div className="flex h-14 shrink-0 items-center justify-between border-b border-slate-200 bg-slate-900 px-4 lg:hidden">
@@ -200,16 +200,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* ── Content ── */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Desktop-only top bar */}
-        <header className="hidden lg:flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-6 shadow-sm">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700">
+        <header className="hidden lg:flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700 dark:bg-red-900/30 dark:text-red-400">
             <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
             Admin Mode
           </span>
-          <p className="text-sm text-slate-500">
-            Logged in as <span className="font-medium text-slate-800">{user?.email}</span>
+          <p className="text-sm text-slate-500 dark:text-gray-400">
+            Logged in as <span className="font-medium text-slate-800 dark:text-gray-200">{user?.email}</span>
           </p>
         </header>
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto bg-slate-50 p-4 dark:bg-gray-950 lg:p-6">{children}</main>
       </div>
     </div>
   );

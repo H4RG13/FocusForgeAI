@@ -29,7 +29,7 @@ export default function NotesPage() {
       <TopBar title="Notes" />
       <div className="p-6 space-y-4">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">{data?.data.length ?? 0} notes</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{data?.data.length ?? 0} notes</p>
           <Button onClick={() => setShowCreate(true)} size="sm">+ New Note</Button>
         </div>
 

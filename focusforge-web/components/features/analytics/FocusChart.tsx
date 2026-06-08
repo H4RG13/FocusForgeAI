@@ -23,8 +23,8 @@ export default function FocusChart({ data }: FocusChartProps) {
   const chartData = data.map((d) => ({ ...d, label: formatLabel(d.date) }));
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-      <h3 className="mb-4 text-sm font-semibold text-gray-700">Focus Minutes per Day</h3>
+    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+      <h3 className="mb-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Focus Minutes per Day</h3>
       <ResponsiveContainer width="100%" height={200}>
         <AreaChart data={chartData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
           <defs>

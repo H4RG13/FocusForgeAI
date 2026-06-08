@@ -24,7 +24,7 @@ export default function FloatingAIChat() {
       {isOpen && (
         <div className="
           fixed z-50 flex flex-col overflow-hidden
-          rounded-2xl border border-gray-200 bg-white shadow-2xl
+          rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900
           transition-all duration-200
           bottom-20 left-3 right-3 max-h-[75vh]
           sm:left-auto sm:right-6 sm:w-[380px] sm:max-h-[min(580px,calc(100vh-7rem))]
@@ -51,7 +51,7 @@ export default function FloatingAIChat() {
           </div>
 
           {/* Tabs */}
-          <div className="flex border-b border-gray-100 bg-gray-50">
+          <div className="flex border-b border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
             {([
               { key: 'chat',       label: '💬 Chat' },
               { key: 'study-plan', label: '📋 Study Plan' },
@@ -61,8 +61,8 @@ export default function FloatingAIChat() {
                 onClick={() => setTab(key)}
                 className={`flex-1 py-2.5 text-xs font-medium transition-colors ${
                   tab === key
-                    ? 'border-b-2 border-indigo-600 text-indigo-700'
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'border-b-2 border-indigo-600 text-indigo-700 dark:text-indigo-400'
+                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                 }`}
               >
                 {label}
