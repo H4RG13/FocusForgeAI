@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const PROTECTED_PREFIXES = ['/dashboard', '/tasks', '/notes', '/focus', '/analytics', '/ai-chat'];
+const PROTECTED_PREFIXES = ['/dashboard', '/tasks', '/notes', '/categories', '/focus', '/analytics', '/ai-chat', '/admin', '/quizzes'];
 const AUTH_PATHS = ['/login', '/register'];
 
 export function middleware(request: NextRequest) {

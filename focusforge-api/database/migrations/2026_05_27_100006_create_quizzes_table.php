@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('note_id')->constrained()->cascadeOnDelete();
             $table->foreignId('ai_generation_id')->nullable()->constrained('ai_generations')->nullOnDelete();
             $table->string('title');
-            $table->enum('status', ['draft', 'published'])->default('draft');
+            $table->enum('status', ['draft', 'available', 'completed'])->default('draft');
             $table->decimal('score', 5, 2)->nullable();
             $table->unsignedInteger('attempts_count')->default(0);
             $table->timestamps();
