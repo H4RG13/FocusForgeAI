@@ -71,6 +71,15 @@ export default function PomodoroTimer({ taskId }: PomodoroTimerProps) {
   const intervalRef    = useRef<ReturnType<typeof setInterval> | null>(null);
   const didCompleteRef = useRef(false);
 
+  // Default to Pomodoro (25 min) on page open if no session is active
+  useEffect(() => {
+    if (!sessionId && !isRunning) {
+      setDurationMinutes(25);
+      setInputValue('25');
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Reset completion guard whenever a new phase/session starts
   useEffect(() => { didCompleteRef.current = false; }, [sessionId, phase]);
 
