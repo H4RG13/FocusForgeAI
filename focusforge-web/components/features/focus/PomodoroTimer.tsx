@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useFocusStore, TimerPhase, PHASE_DURATIONS } from '@/store/focus.store';
 import { useStartSession, useAbandonSession, FOCUS_KEY, ANALYTICS_KEY } from '@/hooks/useFocus';
@@ -9,6 +9,14 @@ import { useUIStore } from '@/store/ui.store';
 import { useAuthStore } from '@/store/auth.store';
 import { playChime, sendNotification } from '@/lib/utils/sound';
 import Button from '@/components/ui/Button';
+
+const PRESETS = [
+  { label: 'Quick Focus', minutes: 15, emoji: '⚡' },
+  { label: 'Pomodoro',    minutes: 25, emoji: '🍅' },
+  { label: 'Deep Work',   minutes: 45, emoji: '💡' },
+  { label: 'Power Hour',  minutes: 60, emoji: '🔥' },
+  { label: 'Flow State',  minutes: 90, emoji: '🧠' },
+];
 
 const PHASE_LABELS: Record<TimerPhase, string> = {
   focus:       'Focus',
@@ -48,8 +56,11 @@ export default function PomodoroTimer({ taskId }: PomodoroTimerProps) {
   const store = useFocusStore();
   const {
     sessionId, phase, secondsRemaining, isRunning, durationMinutes, pomodoroCount,
-    tick, pause, resume, startBreak, resetToFocus, incrementPomodoro, skipToEnd,
+    tick, pause, resume, startBreak, resetToFocus, setDurationMinutes, incrementPomodoro, skipToEnd,
   } = store;
+
+  const [editingDuration, setEditingDuration] = useState(false);
+  const [inputValue, setInputValue] = useState(String(durationMinutes));
 
   const { addToast }  = useUIStore();
   const user          = useAuthStore((s) => s.user);
@@ -59,6 +70,15 @@ export default function PomodoroTimer({ taskId }: PomodoroTimerProps) {
 
   const intervalRef    = useRef<ReturnType<typeof setInterval> | null>(null);
   const didCompleteRef = useRef(false);
+
+  // Default to Pomodoro (25 min) on page open if no session is active
+  useEffect(() => {
+    if (!sessionId && !isRunning) {
+      setDurationMinutes(25);
+      setInputValue('25');
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Reset completion guard whenever a new phase/session starts
   useEffect(() => { didCompleteRef.current = false; }, [sessionId, phase]);
@@ -99,7 +119,7 @@ export default function PomodoroTimer({ taskId }: PomodoroTimerProps) {
       const newCount   = pomodoroCount + 1;
       incrementPomodoro();
 
-      const nextPhase  = newCount % 4 === 0 ? 'long_break' : 'short_break';
+      const nextPhase  = durationMinutes >= 30 || newCount % 4 === 0 ? 'long_break' : 'short_break';
       const nextLabel  = PHASE_LABELS[nextPhase];
 
       sendNotification('🍅 Focus Complete!', `Nice work! Time for a ${nextLabel}.`);
@@ -133,7 +153,22 @@ export default function PomodoroTimer({ taskId }: PomodoroTimerProps) {
   }
 
   function handleStartFocus() {
-    startMutation.mutate({ task_id: taskId, duration_minutes: 25, type: 'pomodoro' });
+    const type = durationMinutes === 25 ? 'pomodoro' : 'freeform';
+    startMutation.mutate({ task_id: taskId, duration_minutes: durationMinutes, type });
+  }
+
+  function handlePreset(minutes: number) {
+    setDurationMinutes(minutes);
+    setInputValue(String(minutes));
+    setEditingDuration(false);
+  }
+
+  function handleDurationBlur() {
+    const parsed = parseInt(inputValue, 10);
+    const clamped = Math.min(180, Math.max(1, isNaN(parsed) ? 25 : parsed));
+    setInputValue(String(clamped));
+    setDurationMinutes(clamped);
+    setEditingDuration(false);
   }
 
   function handleAbandon() {
@@ -171,6 +206,49 @@ export default function PomodoroTimer({ taskId }: PomodoroTimerProps) {
           </button>
         ))}
       </div>
+
+      {/* Duration picker — only when idle on focus phase */}
+      {!hasFocusSession && !isBreak && !isRunning && (
+        <div className="flex items-center gap-2">
+          <label className="text-xs text-gray-400 dark:text-gray-500 shrink-0">Duration</label>
+          <select
+            value={PRESETS.some(p => p.minutes === durationMinutes) ? durationMinutes : 'custom'}
+            onChange={(e) => {
+              if (e.target.value !== 'custom') handlePreset(Number(e.target.value));
+            }}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+          >
+            {PRESETS.map((p) => (
+              <option key={p.minutes} value={p.minutes}>
+                {p.emoji} {p.label} — {p.minutes}m
+              </option>
+            ))}
+            {!PRESETS.some(p => p.minutes === durationMinutes) && (
+              <option value="custom">✏️ Custom — {durationMinutes}m</option>
+            )}
+          </select>
+          {editingDuration ? (
+            <input
+              type="number"
+              min={1}
+              max={180}
+              value={inputValue}
+              autoFocus
+              onChange={(e) => setInputValue(e.target.value)}
+              onBlur={handleDurationBlur}
+              onKeyDown={(e) => e.key === 'Enter' && handleDurationBlur()}
+              className="w-16 rounded-lg border border-indigo-400 bg-white px-2 py-1.5 text-center text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-gray-100 dark:border-indigo-600"
+            />
+          ) : (
+            <button
+              onClick={() => { setInputValue(String(durationMinutes)); setEditingDuration(true); }}
+              className="rounded-lg border border-dashed border-gray-200 px-3 py-1.5 text-xs text-gray-400 hover:border-indigo-400 hover:text-indigo-600 transition-colors dark:border-gray-700 dark:text-gray-500 dark:hover:border-indigo-500 dark:hover:text-indigo-400"
+            >
+              ✏️ Custom
+            </button>
+          )}
+        </div>
+      )}
 
       {/* SVG ring */}
       <div className="relative flex items-center justify-center">
