@@ -110,7 +110,7 @@ export default function PomodoroTimer({ taskId }: PomodoroTimerProps) {
       const newCount   = pomodoroCount + 1;
       incrementPomodoro();
 
-      const nextPhase  = newCount % 4 === 0 ? 'long_break' : 'short_break';
+      const nextPhase  = durationMinutes >= 30 || newCount % 4 === 0 ? 'long_break' : 'short_break';
       const nextLabel  = PHASE_LABELS[nextPhase];
 
       sendNotification('🍅 Focus Complete!', `Nice work! Time for a ${nextLabel}.`);
@@ -144,7 +144,8 @@ export default function PomodoroTimer({ taskId }: PomodoroTimerProps) {
   }
 
   function handleStartFocus() {
-    startMutation.mutate({ task_id: taskId, duration_minutes: durationMinutes, type: 'pomodoro' });
+    const type = durationMinutes === 25 ? 'pomodoro' : 'freeform';
+    startMutation.mutate({ task_id: taskId, duration_minutes: durationMinutes, type });
   }
 
   function handlePreset(minutes: number) {
@@ -197,54 +198,46 @@ export default function PomodoroTimer({ taskId }: PomodoroTimerProps) {
         ))}
       </div>
 
-      {/* Preset suggestions — only when idle on focus phase */}
+      {/* Duration picker — only when idle on focus phase */}
       {!hasFocusSession && !isBreak && !isRunning && (
-        <div className="w-full space-y-3">
-          <p className="text-center text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-            Suggested durations
-          </p>
-          <div className="flex flex-wrap justify-center gap-2">
+        <div className="flex items-center gap-2">
+          <label className="text-xs text-gray-400 dark:text-gray-500 shrink-0">Duration</label>
+          <select
+            value={PRESETS.some(p => p.minutes === durationMinutes) ? durationMinutes : 'custom'}
+            onChange={(e) => {
+              if (e.target.value !== 'custom') handlePreset(Number(e.target.value));
+            }}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+          >
             {PRESETS.map((p) => (
-              <button
-                key={p.minutes}
-                onClick={() => handlePreset(p.minutes)}
-                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors border ${
-                  durationMinutes === p.minutes
-                    ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 dark:border-indigo-700'
-                    : 'border-gray-200 bg-white text-gray-600 hover:border-indigo-300 hover:bg-indigo-50/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-indigo-950/30'
-                }`}
-              >
-                <span>{p.emoji}</span>
-                <span>{p.label}</span>
-                <span className="text-gray-400 dark:text-gray-500">{p.minutes}m</span>
-              </button>
+              <option key={p.minutes} value={p.minutes}>
+                {p.emoji} {p.label} — {p.minutes}m
+              </option>
             ))}
-          </div>
-
-          {/* Custom duration input */}
-          <div className="flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-            <span>or</span>
-            {editingDuration ? (
-              <input
-                type="number"
-                min={1}
-                max={180}
-                value={inputValue}
-                autoFocus
-                onChange={(e) => setInputValue(e.target.value)}
-                onBlur={handleDurationBlur}
-                onKeyDown={(e) => e.key === 'Enter' && handleDurationBlur()}
-                className="w-16 rounded-lg border border-indigo-400 bg-white px-2 py-1 text-center text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-gray-100 dark:border-indigo-600"
-              />
-            ) : (
-              <button
-                onClick={() => { setInputValue(String(durationMinutes)); setEditingDuration(true); }}
-                className="rounded-lg border border-dashed border-gray-300 px-3 py-1 text-xs font-medium text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition-colors dark:border-gray-600 dark:text-gray-400 dark:hover:border-indigo-500 dark:hover:text-indigo-400"
-              >
-                ✏️ Custom: {durationMinutes}m
-              </button>
+            {!PRESETS.some(p => p.minutes === durationMinutes) && (
+              <option value="custom">✏️ Custom — {durationMinutes}m</option>
             )}
-          </div>
+          </select>
+          {editingDuration ? (
+            <input
+              type="number"
+              min={1}
+              max={180}
+              value={inputValue}
+              autoFocus
+              onChange={(e) => setInputValue(e.target.value)}
+              onBlur={handleDurationBlur}
+              onKeyDown={(e) => e.key === 'Enter' && handleDurationBlur()}
+              className="w-16 rounded-lg border border-indigo-400 bg-white px-2 py-1.5 text-center text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-gray-100 dark:border-indigo-600"
+            />
+          ) : (
+            <button
+              onClick={() => { setInputValue(String(durationMinutes)); setEditingDuration(true); }}
+              className="rounded-lg border border-dashed border-gray-200 px-3 py-1.5 text-xs text-gray-400 hover:border-indigo-400 hover:text-indigo-600 transition-colors dark:border-gray-700 dark:text-gray-500 dark:hover:border-indigo-500 dark:hover:text-indigo-400"
+            >
+              ✏️ Custom
+            </button>
+          )}
         </div>
       )}
 
