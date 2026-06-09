@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import SelectInput from '@/components/ui/SelectInput';
 import { Note } from '@/types/domain.types';
 import { useCategories } from '@/hooks/useCategories';
 import { extractFileContent, isAcceptedFile, ACCEPT_ATTR } from '@/lib/utils/fileExtract';
@@ -27,7 +28,7 @@ interface NoteFormProps {
 
 export default function NoteForm({ defaultValues, onSubmit, onCancel, loading }: NoteFormProps) {
   const { data: categories } = useCategories();
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       title: defaultValues?.title ?? '',
@@ -35,6 +36,12 @@ export default function NoteForm({ defaultValues, onSubmit, onCancel, loading }:
       category_id: defaultValues?.category?.id ?? null,
     },
   });
+
+  const categoryIdValue = watch('category_id');
+  const categoryOptions = [
+    { value: '', label: 'None' },
+    ...(categories?.map((c) => ({ value: String(c.id), label: c.name })) ?? []),
+  ];
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
@@ -79,15 +86,11 @@ export default function NoteForm({ defaultValues, onSubmit, onCancel, loading }:
 
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
-        <select
-          className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
-          {...register('category_id', { setValueAs: (v) => v === '' ? null : parseInt(v, 10) })}
-        >
-          <option value="">None</option>
-          {categories?.map((cat) => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
-          ))}
-        </select>
+        <SelectInput
+          value={categoryIdValue == null ? '' : String(categoryIdValue)}
+          onChange={(v) => setValue('category_id', v === '' ? null : parseInt(v, 10))}
+          options={categoryOptions}
+        />
       </div>
 
       <div className="flex flex-col gap-1">
