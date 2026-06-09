@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { useFocusSessions, useDeleteSession } from '@/hooks/useFocus';
 import type { FocusSession } from '@/types/domain.types';
 import Button from '@/components/ui/Button';
+import SelectInput from '@/components/ui/SelectInput';
 import { Skeleton } from '@/components/shared/LoadingSkeleton';
 
 type SortKey  = 'newest' | 'oldest' | 'longest' | 'shortest';
@@ -106,20 +107,18 @@ export default function SessionHistory() {
     <div className="space-y-3">
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-2">
-        <select
+        <SelectInput
           value={filter}
-          onChange={(e) => { setFilter(e.target.value as FilterKey); setPage(1); }}
-          className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
-        >
-          {FILTER_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
-        <select
+          onChange={(v) => { setFilter(v as FilterKey); setPage(1); }}
+          options={FILTER_OPTIONS}
+          className="w-36"
+        />
+        <SelectInput
           value={sort}
-          onChange={(e) => setSort(e.target.value as SortKey)}
-          className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
-        >
-          {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
+          onChange={(v) => setSort(v as SortKey)}
+          options={SORT_OPTIONS}
+          className="w-40"
+        />
         {total > 0 && (
           <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">{total} total</span>
         )}

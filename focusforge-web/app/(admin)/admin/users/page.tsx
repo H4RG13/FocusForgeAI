@@ -6,6 +6,7 @@ import { adminApi } from '@/lib/api/admin';
 import { AdminUser } from '@/types/domain.types';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
+import SelectInput from '@/components/ui/SelectInput';
 import { Skeleton } from '@/components/shared/LoadingSkeleton';
 
 export default function AdminUsersPage() {
@@ -47,15 +48,17 @@ export default function AdminUsersPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <select
-          className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+        <SelectInput
           value={roleFilter}
-          onChange={(e) => setRoleFilter(e.target.value)}
-        >
-          <option value="">All roles</option>
-          <option value="user">Users</option>
-          <option value="admin">Admins</option>
-        </select>
+          onChange={setRoleFilter}
+          options={[
+            { value: '',      label: 'All roles' },
+            { value: 'user',  label: 'Users'     },
+            { value: 'admin', label: 'Admins'    },
+          ]}
+          ringColor="red"
+          className="w-36"
+        />
       </div>
 
       {/* Table */}

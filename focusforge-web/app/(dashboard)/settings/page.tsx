@@ -9,6 +9,7 @@ import { useAuthStore } from '@/store/auth.store';
 import { authApi } from '@/lib/api/auth';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
+import SelectInput from '@/components/ui/SelectInput';
 import { useUIStore } from '@/store/ui.store';
 
 const schema = z.object({
@@ -30,7 +31,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       name:                     user?.name ?? '',
@@ -38,6 +39,9 @@ export default function SettingsPage() {
       daily_focus_goal_minutes: user?.daily_focus_goal_minutes ?? 120,
     },
   });
+
+  const timezoneValue = watch('timezone');
+  const timezoneOptions = TIMEZONES.map((tz) => ({ value: tz, label: tz }));
 
   async function onSubmit(data: FormData) {
     setSaving(true);
@@ -95,14 +99,11 @@ export default function SettingsPage() {
 
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Timezone</label>
-            <select
-              className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
-              {...register('timezone')}
-            >
-              {TIMEZONES.map((tz) => (
-                <option key={tz} value={tz}>{tz}</option>
-              ))}
-            </select>
+            <SelectInput
+              value={timezoneValue}
+              onChange={(v) => setValue('timezone', v)}
+              options={timezoneOptions}
+            />
           </div>
 
           <div className="flex flex-col gap-1">

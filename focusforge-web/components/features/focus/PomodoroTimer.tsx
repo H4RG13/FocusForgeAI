@@ -1,14 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { useFocusStore, TimerPhase, PHASE_DURATIONS } from '@/store/focus.store';
-import { useStartSession, useAbandonSession, FOCUS_KEY, ANALYTICS_KEY } from '@/hooks/useFocus';
-import { focusApi } from '@/lib/api/focus';
-import { useUIStore } from '@/store/ui.store';
+import { useStartSession, useAbandonSession } from '@/hooks/useFocus';
 import { useAuthStore } from '@/store/auth.store';
-import { playChime, sendNotification } from '@/lib/utils/sound';
 import Button from '@/components/ui/Button';
+import SelectInput from '@/components/ui/SelectInput';
 
 const PRESETS = [
   { label: 'Quick Focus', minutes: 15, emoji: '⚡' },
@@ -56,20 +53,15 @@ export default function PomodoroTimer({ taskId }: PomodoroTimerProps) {
   const store = useFocusStore();
   const {
     sessionId, phase, secondsRemaining, isRunning, durationMinutes, pomodoroCount,
-    tick, pause, resume, startBreak, resetToFocus, setDurationMinutes, incrementPomodoro, skipToEnd,
+    pause, resume, startBreak, resetToFocus, setDurationMinutes, skipToEnd,
   } = store;
 
   const [editingDuration, setEditingDuration] = useState(false);
   const [inputValue, setInputValue] = useState(String(durationMinutes));
 
-  const { addToast }  = useUIStore();
-  const user          = useAuthStore((s) => s.user);
-  const qc            = useQueryClient();
-  const startMutation = useStartSession();
+  const user            = useAuthStore((s) => s.user);
+  const startMutation   = useStartSession();
   const abandonMutation = useAbandonSession();
-
-  const intervalRef    = useRef<ReturnType<typeof setInterval> | null>(null);
-  const didCompleteRef = useRef(false);
 
   // Default to Pomodoro (25 min) on page open if no session is active
   useEffect(() => {
@@ -79,60 +71,6 @@ export default function PomodoroTimer({ taskId }: PomodoroTimerProps) {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // Reset completion guard whenever a new phase/session starts
-  useEffect(() => { didCompleteRef.current = false; }, [sessionId, phase]);
-
-  // Tick interval
-  useEffect(() => {
-    if (isRunning) {
-      intervalRef.current = setInterval(tick, 1000);
-    } else {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    }
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [isRunning, tick]);
-
-  // Auto-complete when timer hits 0
-  useEffect(() => {
-    if (secondsRemaining === 0 && isRunning && !didCompleteRef.current) {
-      didCompleteRef.current = true;
-      handleTimerComplete();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [secondsRemaining, isRunning]);
-
-  async function handleTimerComplete() {
-    pause();
-    playChime();
-
-    if (phase === 'focus') {
-      // Complete the DB session if one exists
-      if (sessionId) {
-        try {
-          await focusApi.complete(sessionId);
-          qc.invalidateQueries({ queryKey: [FOCUS_KEY] });
-          qc.invalidateQueries({ queryKey: [ANALYTICS_KEY] });
-        } catch { /* already ended */ }
-      }
-
-      const newCount   = pomodoroCount + 1;
-      incrementPomodoro();
-
-      const nextPhase  = durationMinutes >= 30 || newCount % 4 === 0 ? 'long_break' : 'short_break';
-      const nextLabel  = PHASE_LABELS[nextPhase];
-
-      sendNotification('🍅 Focus Complete!', `Nice work! Time for a ${nextLabel}.`);
-      addToast({ type: 'success', message: `Focus done! Starting ${nextLabel} (${PHASE_DURATIONS[nextPhase] / 60} min).` });
-      startBreak(nextPhase);
-
-    } else {
-      // Break ended → back to focus
-      sendNotification('⏰ Break Over!', 'Ready for the next focus session?');
-      addToast({ type: 'info', message: 'Break done! Click Start Focus when you\'re ready.' });
-      resetToFocus();
-    }
-  }
 
   // Ring progress
   const totalSeconds      = phase === 'focus' ? durationMinutes * 60 : PHASE_DURATIONS[phase];
@@ -211,22 +149,17 @@ export default function PomodoroTimer({ taskId }: PomodoroTimerProps) {
       {!hasFocusSession && !isBreak && !isRunning && (
         <div className="flex items-center gap-2">
           <label className="text-xs text-gray-400 dark:text-gray-500 shrink-0">Duration</label>
-          <select
-            value={PRESETS.some(p => p.minutes === durationMinutes) ? durationMinutes : 'custom'}
-            onChange={(e) => {
-              if (e.target.value !== 'custom') handlePreset(Number(e.target.value));
-            }}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
-          >
-            {PRESETS.map((p) => (
-              <option key={p.minutes} value={p.minutes}>
-                {p.emoji} {p.label} — {p.minutes}m
-              </option>
-            ))}
-            {!PRESETS.some(p => p.minutes === durationMinutes) && (
-              <option value="custom">✏️ Custom — {durationMinutes}m</option>
-            )}
-          </select>
+          <SelectInput
+            value={PRESETS.some(p => p.minutes === durationMinutes) ? String(durationMinutes) : 'custom'}
+            onChange={(v) => { if (v !== 'custom') handlePreset(Number(v)); }}
+            options={[
+              ...PRESETS.map(p => ({ value: String(p.minutes), label: `${p.emoji} ${p.label} — ${p.minutes}m` })),
+              ...(!PRESETS.some(p => p.minutes === durationMinutes)
+                ? [{ value: 'custom', label: `✏️ Custom — ${durationMinutes}m` }]
+                : []),
+            ]}
+            className="w-48"
+          />
           {editingDuration ? (
             <input
               type="number"

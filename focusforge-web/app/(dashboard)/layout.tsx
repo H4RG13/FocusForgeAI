@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/layout/Sidebar';
 import FloatingAIChat from '@/components/features/ai/FloatingAIChat';
+import FloatingTimer from '@/components/features/focus/FloatingTimer';
 import { useAuthStore } from '@/store/auth.store';
 import { authApi } from '@/lib/api/auth';
 import Spinner from '@/components/ui/Spinner';
@@ -42,6 +43,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <Sidebar />
       <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-gray-950">{children}</main>
       <FloatingAIChat />
+      <FloatingTimer />
     </div>
   );
 }
