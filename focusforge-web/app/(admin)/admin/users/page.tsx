@@ -7,6 +7,7 @@ import { AdminUser } from '@/types/domain.types';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import SelectInput from '@/components/ui/SelectInput';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 import { Skeleton } from '@/components/shared/LoadingSkeleton';
 
 export default function AdminUsersPage() {
@@ -14,7 +15,8 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
 
-  const [pendingId, setPendingId] = useState<{ action: string; id: number } | null>(null);
+  const [pendingId,    setPendingId]    = useState<{ action: string; id: number } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-users', search, roleFilter],
@@ -44,14 +46,23 @@ export default function AdminUsersPage() {
 
   const users: AdminUser[] = (data as { data: AdminUser[] } | undefined)?.data ?? [];
 
-  function confirmDelete(user: AdminUser) {
-    if (confirm(`Delete ${user.name}? This cannot be undone.`)) {
-      handleDelete(user.id);
-    }
-  }
-
   return (
     <div className="space-y-6">
+      <ConfirmModal
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (deleteTarget) {
+            handleDelete(deleteTarget.id);
+            setDeleteTarget(null);
+          }
+        }}
+        title="Delete User"
+        message={`Delete ${deleteTarget?.name ?? 'this user'}? This cannot be undone.`}
+        confirmLabel="Delete"
+        loading={isPending('delete', deleteTarget?.id ?? -1)}
+      />
+
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Users</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400">{data?.meta?.total ?? 0} total</p>
@@ -129,7 +140,7 @@ export default function AdminUsersPage() {
                       ? <Button size="sm" variant="ghost" onClick={() => handleUnban(user.id)} loading={isPending('unban', user.id)}>Unban</Button>
                       : <Button size="sm" variant="ghost" onClick={() => handleBan(user.id)}   loading={isPending('ban',   user.id)}>Ban</Button>
                     }
-                    <Button size="sm" variant="danger" onClick={() => confirmDelete(user)} loading={isPending('delete', user.id)}>Delete</Button>
+                    <Button size="sm" variant="danger" onClick={() => setDeleteTarget(user)} loading={isPending('delete', user.id)}>Delete</Button>
                   </div>
                 </td>
               </tr>
@@ -182,7 +193,7 @@ export default function AdminUsersPage() {
                 ? <Button size="sm" variant="ghost" onClick={() => handleUnban(user.id)} loading={isPending('unban', user.id)}>Unban</Button>
                 : <Button size="sm" variant="ghost" onClick={() => handleBan(user.id)}   loading={isPending('ban',   user.id)}>Ban</Button>
               }
-              <Button size="sm" variant="danger" onClick={() => confirmDelete(user)} loading={isPending('delete', user.id)}>Delete</Button>
+              <Button size="sm" variant="danger" onClick={() => setDeleteTarget(user)} loading={isPending('delete', user.id)}>Delete</Button>
             </div>
           </div>
         ))}
