@@ -30,7 +30,7 @@ export default function NoteCard({ note }: NoteCardProps) {
 
       <div className="group relative flex flex-col rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-900">
         <Link href={ROUTES.NOTE(note.id)} className="flex-1">
-          <h3 className="mb-1 font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
+          <h3 className="mb-1 text-lg font-bold text-gray-900 dark:text-gray-100">
             {truncate(note.title, 60)}
           </h3>
           {note.content && (
