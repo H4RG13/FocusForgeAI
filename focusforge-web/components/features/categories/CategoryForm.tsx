@@ -99,7 +99,8 @@ export default function CategoryForm({ defaultValues, onSubmit, onCancel, loadin
       {/* Color */}
       <div className="flex flex-col gap-2">
         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Color</label>
-        <div className="grid grid-cols-8 gap-2">
+        <div className="max-h-24 overflow-y-auto overscroll-contain rounded-lg border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-800/50">
+          <div className="grid grid-cols-8 gap-2">
           {PRESET_COLORS.map((color) => (
             <button
               key={color}
@@ -112,6 +113,7 @@ export default function CategoryForm({ defaultValues, onSubmit, onCancel, loadin
               }}
             />
           ))}
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <input
