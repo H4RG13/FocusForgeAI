@@ -70,15 +70,11 @@ export default function FloatingAIChat() {
             ))}
           </div>
 
-          {/* Content */}
-          <div className="flex-1 overflow-hidden">
-            {tab === 'chat' && (
-              <div className="flex h-full flex-col">
-                <ChatInterface compact />
-              </div>
-            )}
+          {/* Content — min-h-0 lets flex-1 shrink so inner overflow-y-auto scrolls */}
+          <div className="flex min-h-0 flex-1 flex-col">
+            {tab === 'chat' && <ChatInterface compact />}
             {tab === 'study-plan' && (
-              <div className="h-full overflow-y-auto p-4">
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
                 <StudyPlanPanel compact />
               </div>
             )}
