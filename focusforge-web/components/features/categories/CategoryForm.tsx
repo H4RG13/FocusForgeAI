@@ -59,7 +59,7 @@ export default function CategoryForm({ defaultValues, onSubmit, onCancel, loadin
       />
 
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-gray-700">Color</label>
+        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Color</label>
 
         {/* Preset swatches */}
         <div className="flex flex-wrap gap-2">
@@ -83,9 +83,9 @@ export default function CategoryForm({ defaultValues, onSubmit, onCancel, loadin
             type="color"
             value={customColor}
             onChange={(e) => pickColor(e.target.value)}
-            className="h-8 w-8 cursor-pointer rounded border border-gray-300"
+            className="h-8 w-8 cursor-pointer rounded border border-gray-300 dark:border-gray-600"
           />
-          <span className="text-xs text-gray-500 font-mono">{selectedColor}</span>
+          <span className="text-xs text-gray-500 font-mono dark:text-gray-400">{selectedColor}</span>
           <input type="hidden" {...register('color')} />
         </div>
         {errors.color && <p className="text-xs text-red-500">{errors.color.message}</p>}
@@ -99,8 +99,8 @@ export default function CategoryForm({ defaultValues, onSubmit, onCancel, loadin
       />
 
       {/* Preview */}
-      <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
-        <span className="text-xs text-gray-400">Preview:</span>
+      <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
+        <span className="text-xs text-gray-400 dark:text-gray-500">Preview:</span>
         <span
           className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
           style={{ backgroundColor: selectedColor }}
