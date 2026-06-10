@@ -64,10 +64,10 @@ export default function ChatInterface({ compact = false }: { compact?: boolean }
   }
 
   return (
-    <div className={`flex flex-col ${compact ? 'h-full' : 'h-[calc(100vh-180px)] rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900'}`}>
+    <div className={`flex min-h-0 flex-col ${compact ? 'flex-1' : 'h-[calc(100vh-180px)] rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900'}`}>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-5">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-6 space-y-5">
         {messages.map((msg, i) => (
           <ChatMessage key={i} role={msg.role} content={msg.content} />
         ))}
