@@ -14,22 +14,39 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
 
+  const [pendingId, setPendingId] = useState<{ action: string; id: number } | null>(null);
+
   const { data, isLoading } = useQuery({
     queryKey: ['admin-users', search, roleFilter],
     queryFn: () => adminApi.getUsers({ search: search || undefined, role: roleFilter || undefined }),
   });
 
-  const promote  = useMutation({ mutationFn: adminApi.promoteUser,  onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-users'] }) });
-  const demote   = useMutation({ mutationFn: adminApi.demoteUser,   onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-users'] }) });
-  const ban      = useMutation({ mutationFn: adminApi.banUser,      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-users'] }) });
-  const unban    = useMutation({ mutationFn: adminApi.unbanUser,    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-users'] }) });
-  const destroy  = useMutation({ mutationFn: adminApi.deleteUser,   onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-users'] }) });
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+  const withPending = (action: string, fn: (id: number) => Promise<unknown>) => (id: number) => {
+    setPendingId({ action, id });
+    fn(id).then(invalidate).catch(() => {}).finally(() => setPendingId(null));
+  };
+
+  const promote = useMutation({ mutationFn: adminApi.promoteUser });
+  const demote  = useMutation({ mutationFn: adminApi.demoteUser  });
+  const ban     = useMutation({ mutationFn: adminApi.banUser     });
+  const unban   = useMutation({ mutationFn: adminApi.unbanUser   });
+  const destroy = useMutation({ mutationFn: adminApi.deleteUser  });
+
+  const handlePromote = withPending('promote', (id) => promote.mutateAsync(id));
+  const handleDemote  = withPending('demote',  (id) => demote.mutateAsync(id));
+  const handleBan     = withPending('ban',     (id) => ban.mutateAsync(id));
+  const handleUnban   = withPending('unban',   (id) => unban.mutateAsync(id));
+  const handleDelete  = withPending('delete',  (id) => destroy.mutateAsync(id));
+
+  const isPending = (action: string, id: number) =>
+    pendingId?.action === action && pendingId?.id === id;
 
   const users: AdminUser[] = (data as { data: AdminUser[] } | undefined)?.data ?? [];
 
   function confirmDelete(user: AdminUser) {
     if (confirm(`Delete ${user.name}? This cannot be undone.`)) {
-      destroy.mutate(user.id);
+      handleDelete(user.id);
     }
   }
 
@@ -105,14 +122,14 @@ export default function AdminUsersPage() {
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-1 flex-wrap">
                     {user.role === 'user'
-                      ? <Button size="sm" variant="ghost" onClick={() => promote.mutate(user.id)} loading={promote.isPending}>Promote</Button>
-                      : <Button size="sm" variant="ghost" onClick={() => demote.mutate(user.id)} loading={demote.isPending}>Demote</Button>
+                      ? <Button size="sm" variant="ghost" onClick={() => handlePromote(user.id)} loading={isPending('promote', user.id)}>Promote</Button>
+                      : <Button size="sm" variant="ghost" onClick={() => handleDemote(user.id)}  loading={isPending('demote',  user.id)}>Demote</Button>
                     }
                     {user.is_banned
-                      ? <Button size="sm" variant="ghost" onClick={() => unban.mutate(user.id)} loading={unban.isPending}>Unban</Button>
-                      : <Button size="sm" variant="ghost" onClick={() => ban.mutate(user.id)} loading={ban.isPending}>Ban</Button>
+                      ? <Button size="sm" variant="ghost" onClick={() => handleUnban(user.id)} loading={isPending('unban', user.id)}>Unban</Button>
+                      : <Button size="sm" variant="ghost" onClick={() => handleBan(user.id)}   loading={isPending('ban',   user.id)}>Ban</Button>
                     }
-                    <Button size="sm" variant="danger" onClick={() => confirmDelete(user)} loading={destroy.isPending}>Delete</Button>
+                    <Button size="sm" variant="danger" onClick={() => confirmDelete(user)} loading={isPending('delete', user.id)}>Delete</Button>
                   </div>
                 </td>
               </tr>
@@ -158,14 +175,14 @@ export default function AdminUsersPage() {
             {/* Actions */}
             <div className="mt-3 flex flex-wrap gap-2">
               {user.role === 'user'
-                ? <Button size="sm" variant="ghost" onClick={() => promote.mutate(user.id)} loading={promote.isPending}>Promote</Button>
-                : <Button size="sm" variant="ghost" onClick={() => demote.mutate(user.id)} loading={demote.isPending}>Demote</Button>
+                ? <Button size="sm" variant="ghost" onClick={() => handlePromote(user.id)} loading={isPending('promote', user.id)}>Promote</Button>
+                : <Button size="sm" variant="ghost" onClick={() => handleDemote(user.id)}  loading={isPending('demote',  user.id)}>Demote</Button>
               }
               {user.is_banned
-                ? <Button size="sm" variant="ghost" onClick={() => unban.mutate(user.id)} loading={unban.isPending}>Unban</Button>
-                : <Button size="sm" variant="ghost" onClick={() => ban.mutate(user.id)} loading={ban.isPending}>Ban</Button>
+                ? <Button size="sm" variant="ghost" onClick={() => handleUnban(user.id)} loading={isPending('unban', user.id)}>Unban</Button>
+                : <Button size="sm" variant="ghost" onClick={() => handleBan(user.id)}   loading={isPending('ban',   user.id)}>Ban</Button>
               }
-              <Button size="sm" variant="danger" onClick={() => confirmDelete(user)} loading={destroy.isPending}>Delete</Button>
+              <Button size="sm" variant="danger" onClick={() => confirmDelete(user)} loading={isPending('delete', user.id)}>Delete</Button>
             </div>
           </div>
         ))}
