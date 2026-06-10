@@ -52,7 +52,6 @@ interface CategoryFormProps {
 
 export default function CategoryForm({ defaultValues, onSubmit, onCancel, loading }: CategoryFormProps) {
   const [customColor, setCustomColor] = useState(defaultValues?.color ?? '#6366f1');
-  const [showAllIcons, setShowAllIcons] = useState(false);
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -74,8 +73,6 @@ export default function CategoryForm({ defaultValues, onSubmit, onCancel, loadin
   function pickIcon(emoji: string) {
     setValue('icon', selectedIcon === emoji ? '' : emoji);
   }
-
-  const visibleIcons = showAllIcons ? ICON_OPTIONS : ICON_OPTIONS.slice(0, 32);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -134,9 +131,9 @@ export default function CategoryForm({ defaultValues, onSubmit, onCancel, loadin
           )}
         </div>
 
-        <div className="rounded-lg border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-800/50">
+        <div className="max-h-36 overflow-y-auto overscroll-contain rounded-lg border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-800/50">
           <div className="grid grid-cols-8 gap-1">
-            {visibleIcons.map((emoji) => (
+            {ICON_OPTIONS.map((emoji) => (
               <button
                 key={emoji}
                 type="button"
@@ -152,16 +149,6 @@ export default function CategoryForm({ defaultValues, onSubmit, onCancel, loadin
               </button>
             ))}
           </div>
-
-          {ICON_OPTIONS.length > 32 && (
-            <button
-              type="button"
-              onClick={() => setShowAllIcons((v) => !v)}
-              className="mt-2 w-full rounded-md py-1 text-xs text-gray-400 hover:text-indigo-600 transition-colors dark:hover:text-indigo-400"
-            >
-              {showAllIcons ? '▲ Show less' : `▼ Show all (${ICON_OPTIONS.length})`}
-            </button>
-          )}
         </div>
         <input type="hidden" {...register('icon')} />
       </div>
