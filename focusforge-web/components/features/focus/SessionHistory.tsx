@@ -5,6 +5,7 @@ import { useFocusSessions, useDeleteSession } from '@/hooks/useFocus';
 import type { FocusSession } from '@/types/domain.types';
 import Button from '@/components/ui/Button';
 import SelectInput from '@/components/ui/SelectInput';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 import { Skeleton } from '@/components/shared/LoadingSkeleton';
 
 type SortKey  = 'newest' | 'oldest' | 'longest' | 'shortest';
@@ -34,34 +35,47 @@ function formatDate(iso: string) {
 
 function SessionRow({ session }: { session: FocusSession }) {
   const deleteMutation = useDeleteSession();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 dark:border-gray-800 dark:bg-gray-800/50">
-      <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-        session.completed ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'
-      }`}>
-        {session.completed ? '✓' : '✗'}
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
-          {session.task?.title ?? 'Free focus'}
-          <span className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs text-gray-500 dark:bg-gray-700 dark:text-gray-400">
-            {session.type}
-          </span>
-        </p>
-        <p className="text-xs text-gray-400 dark:text-gray-500">{formatDate(session.started_at)}</p>
-      </div>
-      <span className="shrink-0 text-sm font-semibold text-gray-700 dark:text-gray-300">
-        {session.duration_minutes ?? 0} min
-      </span>
-      <Button
-        variant="ghost" size="sm"
-        onClick={() => deleteMutation.mutate(session.id)}
+    <>
+      <ConfirmModal
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={() => { deleteMutation.mutate(session.id); setConfirmOpen(false); }}
+        title="Delete Session"
+        message={`Delete this ${session.duration_minutes ?? 0}-min ${session.type} session? This cannot be undone.`}
         loading={deleteMutation.isPending}
-        className="shrink-0 text-red-500 hover:text-red-700"
-      >
-        ×
-      </Button>
-    </div>
+      />
+
+      <div className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 dark:border-gray-800 dark:bg-gray-800/50">
+        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+          session.completed ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'
+        }`}>
+          {session.completed ? '✓' : '✗'}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+            {session.task?.title ?? 'Free focus'}
+            <span className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs text-gray-500 dark:bg-gray-700 dark:text-gray-400">
+              {session.type}
+            </span>
+          </p>
+          <p className="text-xs text-gray-400 dark:text-gray-500">{formatDate(session.started_at)}</p>
+        </div>
+        <span className="shrink-0 text-sm font-semibold text-gray-700 dark:text-gray-300">
+          {session.duration_minutes ?? 0} min
+        </span>
+        <Button
+          variant="ghost" size="sm"
+          onClick={() => setConfirmOpen(true)}
+          loading={deleteMutation.isPending}
+          className="shrink-0 text-red-500 hover:text-red-700"
+        >
+          ×
+        </Button>
+      </div>
+    </>
   );
 }
 
