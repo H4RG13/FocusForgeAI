@@ -9,9 +9,21 @@ import Input from '@/components/ui/Input';
 import { Category } from '@/types/domain.types';
 
 const PRESET_COLORS = [
-  '#6366f1', '#8b5cf6', '#ec4899', '#ef4444',
-  '#f97316', '#eab308', '#22c55e', '#14b8a6',
-  '#3b82f6', '#06b6d4', '#64748b', '#78716c',
+  // Purples & blues
+  '#6366f1', '#8b5cf6', '#a78bfa', '#7c3aed',
+  '#3b82f6', '#2563eb', '#1d4ed8', '#06b6d4',
+  // Pinks & reds
+  '#ec4899', '#f43f5e', '#ef4444', '#dc2626',
+  '#fb7185', '#e11d48', '#be123c', '#9f1239',
+  // Oranges & yellows
+  '#f97316', '#ea580c', '#fb923c', '#fbbf24',
+  '#eab308', '#ca8a04', '#f59e0b', '#d97706',
+  // Greens & teals
+  '#22c55e', '#16a34a', '#15803d', '#4ade80',
+  '#14b8a6', '#0d9488', '#10b981', '#059669',
+  // Neutrals & others
+  '#64748b', '#475569', '#334155', '#78716c',
+  '#a16207', '#92400e', '#1e40af', '#0f766e',
 ];
 
 const ICON_OPTIONS = [
@@ -87,13 +99,13 @@ export default function CategoryForm({ defaultValues, onSubmit, onCancel, loadin
       {/* Color */}
       <div className="flex flex-col gap-2">
         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Color</label>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-8 gap-2">
           {PRESET_COLORS.map((color) => (
             <button
               key={color}
               type="button"
               onClick={() => pickColor(color)}
-              className="h-7 w-7 rounded-full border-2 transition-transform hover:scale-110"
+              className="h-7 w-7 rounded-full border-2 transition-transform hover:scale-110 justify-self-center"
               style={{
                 backgroundColor: color,
                 borderColor: selectedColor === color ? '#1e293b' : 'transparent',
