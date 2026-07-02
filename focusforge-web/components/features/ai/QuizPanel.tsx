@@ -6,7 +6,7 @@ import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
 import { useGenerateQuiz, usePollGeneration, useNoteQuizzes, useDeleteQuiz } from '@/hooks/useAI';
 import ConfirmModal from '@/components/ui/ConfirmModal';
-import { QuizType } from '@/types/domain.types';
+import { Quiz, QuizType } from '@/types/domain.types';
 import { ROUTES } from '@/lib/constants/routes';
 
 const QUIZ_TYPES: { value: QuizType; label: string; description: string }[] = [
@@ -29,7 +29,7 @@ export default function QuizPanel({ noteId, wordCount = 0 }: QuizPanelProps) {
   const maxItems = Math.min(100, Math.max(20, Math.floor(wordCount / 40)));
   const [itemCount, setItemCount]       = useState(5);
   const [showForm, setShowForm]         = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Quiz | null>(null);
 
   const generateQuiz = useGenerateQuiz(noteId);
   const deleteQuiz   = useDeleteQuiz(noteId);
@@ -71,16 +71,17 @@ export default function QuizPanel({ noteId, wordCount = 0 }: QuizPanelProps) {
     enumeration:     'Enum',
   };
 
-  const deleteTargetQuiz = quizzes?.find((q) => q.id === deleteTarget);
-
   return (
     <>
     <ConfirmModal
       open={deleteTarget !== null}
       onClose={() => setDeleteTarget(null)}
-      onConfirm={() => deleteQuiz.mutate(deleteTarget!, { onSuccess: () => setDeleteTarget(null) })}
+      onConfirm={() => deleteQuiz.mutate(deleteTarget!.id, {
+        onSuccess: () => setDeleteTarget(null),
+        onError: () => setDeleteTarget(null),
+      })}
       title="Delete Quiz"
-      message={`Delete "${deleteTargetQuiz?.title}"? This cannot be undone.`}
+      message={`Delete "${deleteTarget?.title}"? This cannot be undone.`}
       confirmLabel="Delete"
       loading={deleteQuiz.isPending}
     />
@@ -186,7 +187,7 @@ export default function QuizPanel({ noteId, wordCount = 0 }: QuizPanelProps) {
                   {quiz.attempts_count > 0 ? 'Retry' : 'Start'}
                 </Button>
                 <button
-                  onClick={() => setDeleteTarget(quiz.id)}
+                  onClick={() => setDeleteTarget(quiz)}
                   className="rounded p-1 text-gray-300 hover:bg-red-50 hover:text-red-500 dark:text-gray-600 dark:hover:bg-red-950/40 dark:hover:text-red-400 transition-colors"
                   title="Delete quiz"
                 >

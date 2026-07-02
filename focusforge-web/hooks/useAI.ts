@@ -67,5 +67,11 @@ export function useDeleteQuiz(noteId: number) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['quizzes', noteId] });
     },
+    onError: (error: unknown) => {
+      const status = (error as { response?: { status?: number } })?.response?.status;
+      if (status === 404) {
+        queryClient.invalidateQueries({ queryKey: ['quizzes', noteId] });
+      }
+    },
   });
 }
