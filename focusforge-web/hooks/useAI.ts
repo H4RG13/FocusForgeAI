@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { aiApi } from '@/lib/api/ai';
 import { AIGeneration } from '@/types/domain.types';
@@ -58,6 +59,29 @@ export function useSubmitQuiz(quizId: number) {
       queryClient.invalidateQueries({ queryKey: ['quiz', quizId] });
     },
   });
+}
+
+export function useExportQuizzes(noteId: number) {
+  const [isExporting, setIsExporting] = useState(false);
+
+  async function exportToDoc(quizIds: number[], filename: string) {
+    setIsExporting(true);
+    try {
+      const blob = await aiApi.exportQuizzes(noteId, quizIds);
+      const url  = URL.createObjectURL(
+        new Blob([blob], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }),
+      );
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setIsExporting(false);
+    }
+  }
+
+  return { exportToDoc, isExporting };
 }
 
 export function useDeleteQuiz(noteId: number) {

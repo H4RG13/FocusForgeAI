@@ -23,6 +23,14 @@ export const aiApi = {
   deleteQuiz: (quizId: number) =>
     apiClient.delete(`/quizzes/${quizId}`),
 
+  exportQuizzes: (noteId: number, quizIds: number[]) => {
+    const params = new URLSearchParams();
+    quizIds.forEach((id) => params.append('quiz_ids[]', String(id)));
+    return apiClient
+      .get<Blob>(`/notes/${noteId}/quizzes/export?${params.toString()}`, { responseType: 'blob' })
+      .then((r) => r.data);
+  },
+
   chat: (messages: { role: 'user' | 'assistant'; content: string }[]) =>
     apiClient.post<{ data: { content: string; model: string } }>('/ai/chat', { messages }).then(r => r.data.data),
 

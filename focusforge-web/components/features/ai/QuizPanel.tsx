@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
-import { useGenerateQuiz, usePollGeneration, useNoteQuizzes, useDeleteQuiz } from '@/hooks/useAI';
+import { useGenerateQuiz, usePollGeneration, useNoteQuizzes, useDeleteQuiz, useExportQuizzes } from '@/hooks/useAI';
 import ConfirmModal from '@/components/ui/ConfirmModal';
+import ExportQuizModal from './ExportQuizModal';
 import { Quiz, QuizType } from '@/types/domain.types';
 import { ROUTES } from '@/lib/constants/routes';
 
@@ -18,10 +19,11 @@ const QUIZ_TYPES: { value: QuizType; label: string; description: string }[] = [
 
 interface QuizPanelProps {
   noteId: number;
+  noteTitle?: string;
   wordCount?: number;
 }
 
-export default function QuizPanel({ noteId, wordCount = 0 }: QuizPanelProps) {
+export default function QuizPanel({ noteId, noteTitle = 'Note', wordCount = 0 }: QuizPanelProps) {
   const router = useRouter();
   const [generationId, setGenerationId] = useState<number | null>(null);
   const [quizType, setQuizType]         = useState<QuizType>('multiple_choice');
@@ -30,9 +32,11 @@ export default function QuizPanel({ noteId, wordCount = 0 }: QuizPanelProps) {
   const [itemCount, setItemCount]       = useState(5);
   const [showForm, setShowForm]         = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Quiz | null>(null);
+  const [showExport, setShowExport]     = useState(false);
 
-  const generateQuiz = useGenerateQuiz(noteId);
-  const deleteQuiz   = useDeleteQuiz(noteId);
+  const generateQuiz              = useGenerateQuiz(noteId);
+  const deleteQuiz                = useDeleteQuiz(noteId);
+  const { exportToDoc, isExporting } = useExportQuizzes(noteId);
   const { data: quizzes, refetch: refetchQuizzes } = useNoteQuizzes(noteId);
 
   const { data: generation } = usePollGeneration(
@@ -71,8 +75,21 @@ export default function QuizPanel({ noteId, wordCount = 0 }: QuizPanelProps) {
     enumeration:     'Enum',
   };
 
+  function handleExport(orderedIds: number[]) {
+    const slug = noteTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    exportToDoc(orderedIds, `${slug}-quizzes.docx`).then(() => setShowExport(false));
+  }
+
   return (
     <>
+    <ExportQuizModal
+      open={showExport}
+      onClose={() => setShowExport(false)}
+      quizzes={quizzes ?? []}
+      noteTitle={noteTitle}
+      onExport={handleExport}
+      isExporting={isExporting}
+    />
     <ConfirmModal
       open={deleteTarget !== null}
       onClose={() => setDeleteTarget(null)}
@@ -88,16 +105,28 @@ export default function QuizPanel({ noteId, wordCount = 0 }: QuizPanelProps) {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">AI Quiz</h3>
-        {!isProcessing && (
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => setShowForm((v) => !v)}
-            disabled={isProcessing}
-          >
-            {showForm ? 'Cancel' : 'Generate Quiz'}
-          </Button>
-        )}
+        <div className="flex items-center gap-1.5">
+          {quizzes && quizzes.length > 0 && !isProcessing && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setShowExport(true)}
+              title="Export all quizzes to Word document"
+            >
+              Export to Docs
+            </Button>
+          )}
+          {!isProcessing && (
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setShowForm((v) => !v)}
+              disabled={isProcessing}
+            >
+              {showForm ? 'Cancel' : 'Generate Quiz'}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Customization form */}
