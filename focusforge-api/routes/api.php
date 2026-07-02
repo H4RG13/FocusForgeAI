@@ -80,9 +80,10 @@ Route::prefix('v1')->group(function () {
         });
 
         // Quizzes
-        Route::get('notes/{note}/quizzes',    [QuizController::class, 'index']);
-        Route::get('quizzes/{quiz}',          [QuizController::class, 'show']);
-        Route::post('quizzes/{quiz}/submit',  [QuizController::class, 'submit']);
-        Route::delete('quizzes/{quiz}',       [QuizController::class, 'destroy']);
+        Route::get('notes/{note}/quizzes',        [QuizController::class, 'index']);
+        Route::get('notes/{note}/quizzes/export', [QuizController::class, 'export']);
+        Route::get('quizzes/{quiz}',              [QuizController::class, 'show']);
+        Route::post('quizzes/{quiz}/submit',      [QuizController::class, 'submit']);
+        Route::delete('quizzes/{quiz}',           [QuizController::class, 'destroy']);
     });
 });
