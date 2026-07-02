@@ -10,7 +10,7 @@ interface Props {
   onClose: () => void;
   quizzes: Quiz[];
   noteTitle: string;
-  onExport: (orderedIds: number[]) => void;
+  onExport: (orderedIds: number[], filename: string) => void;
   isExporting: boolean;
 }
 
@@ -21,14 +21,20 @@ const TYPE_LABEL: Record<QuizType, string> = {
   enumeration:     'Enum',
 };
 
+function toSlug(title: string) {
+  return title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-quizzes';
+}
+
 export default function ExportQuizModal({ open, onClose, quizzes, noteTitle, onExport, isExporting }: Props) {
   const [ordered, setOrdered]   = useState<Quiz[]>([]);
   const [dragOver, setDragOver] = useState<number | null>(null);
+  const [filename, setFilename] = useState('');
   const dragIndex               = useRef<number | null>(null);
 
   useEffect(() => {
     setOrdered([...quizzes]);
-  }, [quizzes, open]);
+    setFilename(toSlug(noteTitle));
+  }, [quizzes, noteTitle, open]);
 
   function onDragStart(i: number) {
     dragIndex.current = i;
@@ -103,15 +109,32 @@ export default function ExportQuizModal({ open, onClose, quizzes, noteTitle, onE
         ))}
       </ul>
 
+      {/* Filename */}
+      <div className="mb-4">
+        <label className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">
+          File name
+        </label>
+        <div className="flex items-center rounded-lg border border-gray-200 bg-white px-3 py-1.5 dark:border-gray-700 dark:bg-gray-900">
+          <input
+            type="text"
+            value={filename}
+            onChange={(e) => setFilename(e.target.value.replace(/[^a-zA-Z0-9_\-]/g, '-'))}
+            className="min-w-0 flex-1 bg-transparent text-sm text-gray-800 outline-none dark:text-gray-200"
+            spellCheck={false}
+          />
+          <span className="ml-1 shrink-0 text-xs text-gray-400">.docx</span>
+        </div>
+      </div>
+
       <div className="flex justify-end gap-2">
         <Button variant="secondary" size="sm" onClick={onClose} disabled={isExporting}>
           Cancel
         </Button>
         <Button
           size="sm"
-          onClick={() => onExport(ordered.map((q) => q.id))}
+          onClick={() => onExport(ordered.map((q) => q.id), filename)}
           loading={isExporting}
-          disabled={ordered.length === 0}
+          disabled={ordered.length === 0 || !filename.trim()}
         >
           Download .docx
         </Button>

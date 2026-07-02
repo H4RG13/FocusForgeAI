@@ -75,9 +75,8 @@ export default function QuizPanel({ noteId, noteTitle = 'Note', wordCount = 0 }:
     enumeration:     'Enum',
   };
 
-  function handleExport(orderedIds: number[]) {
-    const slug = noteTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-    exportToDoc(orderedIds, `${slug}-quizzes.docx`).then(() => setShowExport(false));
+  function handleExport(orderedIds: number[], filename: string) {
+    exportToDoc(orderedIds, `${filename.trim() || 'quizzes'}.docx`).then(() => setShowExport(false));
   }
 
   return (
