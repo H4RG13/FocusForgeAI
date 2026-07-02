@@ -59,3 +59,13 @@ export function useSubmitQuiz(quizId: number) {
     },
   });
 }
+
+export function useDeleteQuiz(noteId: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (quizId: number) => aiApi.deleteQuiz(quizId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['quizzes', noteId] });
+    },
+  });
+}

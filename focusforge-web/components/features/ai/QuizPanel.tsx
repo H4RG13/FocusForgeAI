@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
-import { useGenerateQuiz, usePollGeneration, useNoteQuizzes } from '@/hooks/useAI';
+import { useGenerateQuiz, usePollGeneration, useNoteQuizzes, useDeleteQuiz } from '@/hooks/useAI';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 import { QuizType } from '@/types/domain.types';
 import { ROUTES } from '@/lib/constants/routes';
 
@@ -28,8 +29,10 @@ export default function QuizPanel({ noteId, wordCount = 0 }: QuizPanelProps) {
   const maxItems = Math.min(100, Math.max(20, Math.floor(wordCount / 40)));
   const [itemCount, setItemCount]       = useState(5);
   const [showForm, setShowForm]         = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
 
   const generateQuiz = useGenerateQuiz(noteId);
+  const deleteQuiz   = useDeleteQuiz(noteId);
   const { data: quizzes, refetch: refetchQuizzes } = useNoteQuizzes(noteId);
 
   const { data: generation } = usePollGeneration(
@@ -68,7 +71,19 @@ export default function QuizPanel({ noteId, wordCount = 0 }: QuizPanelProps) {
     enumeration:     'Enum',
   };
 
+  const deleteTargetQuiz = quizzes?.find((q) => q.id === deleteTarget);
+
   return (
+    <>
+    <ConfirmModal
+      open={deleteTarget !== null}
+      onClose={() => setDeleteTarget(null)}
+      onConfirm={() => deleteQuiz.mutate(deleteTarget!, { onSuccess: () => setDeleteTarget(null) })}
+      title="Delete Quiz"
+      message={`Delete "${deleteTargetQuiz?.title}"? This cannot be undone.`}
+      confirmLabel="Delete"
+      loading={deleteQuiz.isPending}
+    />
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">AI Quiz</h3>
@@ -162,13 +177,22 @@ export default function QuizPanel({ noteId, wordCount = 0 }: QuizPanelProps) {
                   {quiz.score !== null ? ` · Best: ${quiz.score}%` : ''}
                 </p>
               </div>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => router.push(ROUTES.QUIZ(quiz.id))}
-              >
-                {quiz.attempts_count > 0 ? 'Retry' : 'Start'}
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => router.push(ROUTES.QUIZ(quiz.id))}
+                >
+                  {quiz.attempts_count > 0 ? 'Retry' : 'Start'}
+                </Button>
+                <button
+                  onClick={() => setDeleteTarget(quiz.id)}
+                  className="rounded p-1 text-gray-300 hover:bg-red-50 hover:text-red-500 dark:text-gray-600 dark:hover:bg-red-950/40 dark:hover:text-red-400 transition-colors"
+                  title="Delete quiz"
+                >
+                  ✕
+                </button>
+              </div>
             </li>
           ))}
         </ul>
@@ -178,5 +202,6 @@ export default function QuizPanel({ noteId, wordCount = 0 }: QuizPanelProps) {
         <p className="text-sm text-gray-400">No quizzes yet. Generate one above.</p>
       )}
     </div>
+    </>
   );
 }

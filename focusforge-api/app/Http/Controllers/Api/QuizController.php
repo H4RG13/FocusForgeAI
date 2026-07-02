@@ -30,6 +30,13 @@ class QuizController extends Controller
         return response()->json(new QuizResource($quiz->load('questions')));
     }
 
+    public function destroy(Quiz $quiz): JsonResponse
+    {
+        $this->authorize('delete', $quiz);
+        $quiz->delete();
+        return response()->json(null, 204);
+    }
+
     public function submit(Request $request, Quiz $quiz): JsonResponse
     {
         $this->authorize('view', $quiz);

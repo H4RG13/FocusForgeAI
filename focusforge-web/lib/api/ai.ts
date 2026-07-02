@@ -20,6 +20,9 @@ export const aiApi = {
   submitQuiz: (quizId: number, answers: Record<number, string>) =>
     apiClient.post<QuizSubmitResult>(`/quizzes/${quizId}/submit`, { answers }).then(r => r.data),
 
+  deleteQuiz: (quizId: number) =>
+    apiClient.delete(`/quizzes/${quizId}`),
+
   chat: (messages: { role: 'user' | 'assistant'; content: string }[]) =>
     apiClient.post<{ data: { content: string; model: string } }>('/ai/chat', { messages }).then(r => r.data.data),
 

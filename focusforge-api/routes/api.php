@@ -83,5 +83,6 @@ Route::prefix('v1')->group(function () {
         Route::get('notes/{note}/quizzes',    [QuizController::class, 'index']);
         Route::get('quizzes/{quiz}',          [QuizController::class, 'show']);
         Route::post('quizzes/{quiz}/submit',  [QuizController::class, 'submit']);
+        Route::delete('quizzes/{quiz}',       [QuizController::class, 'destroy']);
     });
 });
