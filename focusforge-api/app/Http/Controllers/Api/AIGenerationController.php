@@ -28,10 +28,16 @@ class AIGenerationController extends Controller
         $this->authorize('view', $note);
 
         $data = $request->validate([
-            'question_count' => 'integer|min:3|max:10',
+            'question_count' => 'integer|min:3|max:100',
+            'quiz_type'      => 'string|in:multiple_choice,true_false,identification,enumeration',
         ]);
 
-        $generation = $this->aiService->requestQuiz($note, $request->user(), $data['question_count'] ?? 5);
+        $generation = $this->aiService->requestQuiz(
+            $note,
+            $request->user(),
+            $data['question_count'] ?? 5,
+            $data['quiz_type'] ?? 'multiple_choice',
+        );
 
         return response()->json(new AIGenerationResource($generation), 202);
     }

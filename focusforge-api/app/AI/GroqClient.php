@@ -89,37 +89,31 @@ class GroqClient implements AIClientInterface
 
     // ----------------------------------------------------------- generateQuiz
 
-    public function generateQuiz(string $title, string $content, int $questionCount = 5): array
+    public function generateQuiz(string $title, string $content, int $questionCount = 5, string $quizType = 'multiple_choice'): array
     {
+        $prompt   = new \App\AI\QuizPrompt($title, $content, $questionCount, $quizType);
         $messages = [
-            [
-                'role'    => 'system',
-                'content' => 'You are a quiz generator. Always respond with valid JSON only — no markdown, no extra text.',
-            ],
-            [
-                'role'    => 'user',
-                'content' => "Generate a {$questionCount}-question multiple-choice quiz for this note.\n\n"
-                    . "Title: {$title}\nContent:\n{$content}\n\n"
-                    . 'Return JSON in this exact shape: '
-                    . '{"title":"...","questions":[{"question":"...","options":["A","B","C","D"],'
-                    . '"correct_answer":"A","explanation":"...","order_index":1}]}',
-            ],
+            ['role' => 'system', 'content' => $prompt->systemPrompt()],
+            ['role' => 'user',   'content' => $prompt->userPrompt()],
         ];
 
         $response = $this->request('chat/completions', [
             'model'       => $this->model,
             'messages'    => $messages,
-            'max_tokens'  => 1200,
+            'max_tokens'  => 8000,
             'temperature' => 0.4,
         ]);
 
         $raw   = $response['choices'][0]['message']['content'] ?? '{}';
         $usage = $response['usage'] ?? [];
 
-        // Strip any accidental markdown fences
-        $raw   = preg_replace('/^```json?\s*/i', '', trim($raw));
-        $raw   = preg_replace('/```$/', '', trim($raw));
-        $data  = json_decode($raw, true) ?? [];
+        // Extract the JSON object — find the first { and last } to handle any wrapping text
+        $start = strpos($raw, '{');
+        $end   = strrpos($raw, '}');
+        if ($start !== false && $end !== false && $end > $start) {
+            $raw = substr($raw, $start, $end - $start + 1);
+        }
+        $data = json_decode($raw, true) ?? [];
 
         return array_merge($data, [
             'title'             => $data['title'] ?? "Quiz: {$title}",

@@ -15,7 +15,8 @@ export function useSummarize(noteId: number) {
 export function useGenerateQuiz(noteId: number) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (questionCount?: number) => aiApi.generateQuiz(noteId, questionCount),
+    mutationFn: ({ questionCount, quizType }: { questionCount?: number; quizType?: string }) =>
+      aiApi.generateQuiz(noteId, questionCount, quizType),
     onSuccess: (gen) => {
       queryClient.setQueryData(['ai-generation', gen.id], gen);
     },
@@ -55,6 +56,22 @@ export function useSubmitQuiz(quizId: number) {
     mutationFn: (answers: Record<number, string>) => aiApi.submitQuiz(quizId, answers),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['quiz', quizId] });
+    },
+  });
+}
+
+export function useDeleteQuiz(noteId: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (quizId: number) => aiApi.deleteQuiz(quizId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['quizzes', noteId] });
+    },
+    onError: (error: unknown) => {
+      const status = (error as { response?: { status?: number } })?.response?.status;
+      if (status === 404) {
+        queryClient.invalidateQueries({ queryKey: ['quizzes', noteId] });
+      }
     },
   });
 }

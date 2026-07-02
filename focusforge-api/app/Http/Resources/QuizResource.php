@@ -13,6 +13,7 @@ class QuizResource extends JsonResource
             'id'             => $this->id,
             'note_id'        => $this->note_id,
             'title'          => $this->title,
+            'quiz_type'      => $this->quiz_type ?? 'multiple_choice',
             'status'         => $this->status,
             'score'          => $this->score,
             'attempts_count' => $this->attempts_count,

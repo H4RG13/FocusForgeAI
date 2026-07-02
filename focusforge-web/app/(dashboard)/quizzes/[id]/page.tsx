@@ -7,7 +7,7 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { Skeleton } from '@/components/shared/LoadingSkeleton';
 import { useQuiz, useSubmitQuiz } from '@/hooks/useAI';
-import { QuizSubmitResult } from '@/types/domain.types';
+import { Quiz, QuizSubmitResult } from '@/types/domain.types';
 import { ROUTES } from '@/lib/constants/routes';
 
 export default function QuizPage({ params }: { params: Promise<{ id: string }> }) {
@@ -21,8 +21,8 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [result, setResult] = useState<QuizSubmitResult | null>(null);
 
-  function handleSelect(questionId: number, option: string) {
-    setAnswers((prev) => ({ ...prev, [questionId]: option }));
+  function handleSelect(questionId: number, value: string) {
+    setAnswers((prev) => ({ ...prev, [questionId]: value }));
   }
 
   async function handleSubmit() {
@@ -30,7 +30,11 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
     setResult(res);
   }
 
-  const allAnswered = quiz?.questions.every((q) => answers[q.id] !== undefined) ?? false;
+  const quizType  = quiz?.quiz_type ?? 'multiple_choice';
+  const isTextBased = quizType === 'identification' || quizType === 'enumeration';
+  const allAnswered = quiz?.questions.every((q) =>
+    isTextBased ? (answers[q.id] ?? '').trim().length > 0 : answers[q.id] !== undefined
+  ) ?? false;
 
   if (isLoading) {
     return (
@@ -53,9 +57,11 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
   }
 
   if (result) {
+    // For letter-based types, convert A/B/C/D back to full option text for display
     const enriched = {
       ...result,
       results: result.results.map((r) => {
+        if (isTextBased) return r;
         const q = quiz.questions.find((q) => q.id === r.question_id);
         const letterToText = (letter: string) => {
           const idx = letter.charCodeAt(0) - 65;
@@ -68,7 +74,14 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
         };
       }),
     };
-    return <QuizResults quiz={quiz} result={enriched} onRetry={() => { setResult(null); setAnswers({}); }} onBack={() => router.back()} />;
+    return (
+      <QuizResults
+        quiz={quiz}
+        result={enriched}
+        onRetry={() => { setResult(null); setAnswers({}); }}
+        onBack={() => router.back()}
+      />
+    );
   }
 
   return (
@@ -84,25 +97,63 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
                 <span className="text-indigo-500 font-bold mr-2">{index + 1}.</span>
                 {q.question}
               </p>
-              <div className="grid grid-cols-1 gap-2">
-                {q.options.map((option, optIdx) => {
-                  const letter = String.fromCharCode(65 + optIdx); // A, B, C, D
-                  const selected = answers[q.id] === letter;
-                  return (
-                    <button
-                      key={option}
-                      onClick={() => handleSelect(q.id, letter)}
-                      className={`text-left rounded-lg border px-4 py-2.5 text-sm transition-colors ${
-                        selected
-                          ? 'border-indigo-500 bg-indigo-50 text-indigo-700 font-medium dark:bg-indigo-950/50 dark:text-indigo-300'
-                          : 'border-gray-200 bg-white text-gray-700 hover:border-indigo-300 hover:bg-indigo-50/50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-indigo-800 dark:hover:bg-indigo-950/30'
-                      }`}
-                    >
-                      <span className="font-semibold mr-2">{letter}.</span>{option}
-                    </button>
-                  );
-                })}
-              </div>
+
+              {/* Multiple Choice */}
+              {quizType === 'multiple_choice' && (
+                <div className="grid grid-cols-1 gap-2">
+                  {q.options.map((option, optIdx) => {
+                    const letter   = String.fromCharCode(65 + optIdx);
+                    const selected = answers[q.id] === letter;
+                    return (
+                      <button
+                        key={option}
+                        onClick={() => handleSelect(q.id, letter)}
+                        className={`text-left rounded-lg border px-4 py-2.5 text-sm transition-colors ${
+                          selected
+                            ? 'border-indigo-500 bg-indigo-50 text-indigo-700 font-medium dark:bg-indigo-950/50 dark:text-indigo-300'
+                            : 'border-gray-200 bg-white text-gray-700 hover:border-indigo-300 hover:bg-indigo-50/50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-indigo-800 dark:hover:bg-indigo-950/30'
+                        }`}
+                      >
+                        <span className="font-semibold mr-2">{letter}.</span>{option}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* True / False */}
+              {quizType === 'true_false' && (
+                <div className="grid grid-cols-2 gap-3">
+                  {(['A', 'B'] as const).map((letter, i) => {
+                    const label    = i === 0 ? 'True' : 'False';
+                    const selected = answers[q.id] === letter;
+                    return (
+                      <button
+                        key={letter}
+                        onClick={() => handleSelect(q.id, letter)}
+                        className={`rounded-lg border py-3 text-sm font-semibold transition-colors ${
+                          selected
+                            ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300'
+                            : 'border-gray-200 bg-white text-gray-700 hover:border-indigo-300 hover:bg-indigo-50/50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300'
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Identification / Enumeration */}
+              {(quizType === 'identification' || quizType === 'enumeration') && (
+                <input
+                  type="text"
+                  value={answers[q.id] ?? ''}
+                  onChange={(e) => handleSelect(q.id, e.target.value)}
+                  placeholder="Type your answer…"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500"
+                />
+              )}
             </Card>
           ))}
         </div>
@@ -122,7 +173,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 }
 
 function QuizResults({ quiz, result, onRetry, onBack }: {
-  quiz: { title: string };
+  quiz: Quiz;
   result: QuizSubmitResult;
   onRetry: () => void;
   onBack: () => void;
@@ -134,7 +185,6 @@ function QuizResults({ quiz, result, onRetry, onBack }: {
     <div className="flex flex-col">
       <TopBar title="Quiz Results" />
       <div className="mx-auto w-full max-w-2xl p-6 space-y-6">
-        {/* Score card */}
         <Card className={`text-center space-y-1 ${scoreBg}`}>
           <p className="text-sm text-gray-500 dark:text-gray-400">Your Score</p>
           <p className={`text-5xl font-bold ${scoreColor}`}>{result.score}%</p>
@@ -143,7 +193,6 @@ function QuizResults({ quiz, result, onRetry, onBack }: {
           </p>
         </Card>
 
-        {/* Breakdown */}
         <div className="space-y-3">
           {result.results.map((r, i) => (
             <Card key={r.question_id} className="space-y-2">
@@ -158,7 +207,7 @@ function QuizResults({ quiz, result, onRetry, onBack }: {
               {!r.is_correct && (
                 <div className="ml-6 space-y-1 text-sm">
                   <p className="text-red-600">Your answer: {r.given_answer ?? 'No answer'}</p>
-                  <p className="text-green-700 font-medium">Correct: {r.correct_answer}</p>
+                  <p className="text-green-700 dark:text-green-400 font-medium">Correct: {r.correct_answer}</p>
                 </div>
               )}
               <p className="ml-6 text-xs text-gray-500 italic dark:text-gray-400">{r.explanation}</p>
