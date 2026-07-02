@@ -7,11 +7,12 @@ const ACCEPTED_TYPES = [
   'application/pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/msword',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
   'text/plain',
   'text/markdown',
 ];
 
-const ACCEPTED_EXTENSIONS = ['.pdf', '.docx', '.doc', '.txt', '.md'];
+const ACCEPTED_EXTENSIONS = ['.pdf', '.docx', '.doc', '.pptx', '.txt', '.md'];
 
 export function isAcceptedFile(file: File): boolean {
   const ext = '.' + file.name.split('.').pop()?.toLowerCase();
@@ -58,12 +59,45 @@ async function extractPdf(file: File): Promise<ExtractResult> {
   return { title: stripExtension(file.name), content: pages.join('\n\n') };
 }
 
+async function extractPptx(file: File): Promise<ExtractResult> {
+  const JSZip = (await import('jszip')).default;
+  const arrayBuffer = await file.arrayBuffer();
+  const zip = await JSZip.loadAsync(arrayBuffer);
+
+  // Slides are at ppt/slides/slide1.xml, slide2.xml, …
+  const slideFiles = Object.keys(zip.files)
+    .filter((name) => /^ppt\/slides\/slide\d+\.xml$/.test(name))
+    .sort((a, b) => {
+      const num = (s: string) => parseInt(s.match(/\d+/)?.[0] ?? '0', 10);
+      return num(a) - num(b);
+    });
+
+  const slideTexts: string[] = [];
+
+  for (const slideName of slideFiles) {
+    const xml = await zip.files[slideName].async('text');
+    // Extract all <a:t> text nodes
+    const matches = xml.match(/<a:t[^>]*>([^<]*)<\/a:t>/g) ?? [];
+    const text = matches
+      .map((m) => m.replace(/<[^>]+>/g, '').trim())
+      .filter(Boolean)
+      .join(' ');
+    if (text) slideTexts.push(text);
+  }
+
+  return {
+    title: stripExtension(file.name),
+    content: slideTexts.join('\n\n'),
+  };
+}
+
 export async function extractFileContent(file: File): Promise<ExtractResult> {
   const ext = file.name.split('.').pop()?.toLowerCase();
 
-  if (ext === 'pdf') return extractPdf(file);
+  if (ext === 'pdf')             return extractPdf(file);
   if (ext === 'docx' || ext === 'doc') return extractDocx(file);
-  if (ext === 'txt' || ext === 'md') return extractTxt(file);
+  if (ext === 'pptx')            return extractPptx(file);
+  if (ext === 'txt' || ext === 'md')   return extractTxt(file);
 
   throw new Error(`Unsupported file type: .${ext}`);
 }

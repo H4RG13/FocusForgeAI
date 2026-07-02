@@ -52,7 +52,7 @@ export default function NoteForm({ defaultValues, onSubmit, onCancel, loading }:
     if (!file) return;
 
     if (!isAcceptedFile(file)) {
-      setImportError('Unsupported file type. Please use PDF, DOCX, DOC, TXT, or MD.');
+      setImportError('Unsupported file type. Please use PDF, DOCX, DOC, PPTX, TXT, or MD.');
       e.target.value = '';
       return;
     }
@@ -133,7 +133,7 @@ export default function NoteForm({ defaultValues, onSubmit, onCancel, loading }:
         )}
 
         <p className="text-xs text-gray-400 dark:text-gray-500">
-          Supports PDF, DOCX, DOC, TXT, MD — or just type / paste below
+          Supports PDF, DOCX, DOC, PPTX, TXT, MD — or just type / paste below
         </p>
 
         <textarea
