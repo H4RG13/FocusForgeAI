@@ -9,8 +9,8 @@ class GroqClient implements AIClientInterface
 {
     private string $apiKey;
     private string $baseUrl  = 'https://api.groq.com/openai/v1';
-    private string $model    = 'llama3-8b-8192';
-    private string $fastModel = 'llama3-8b-8192';
+    private string $model    = 'llama-3.3-70b-versatile';
+    private string $fastModel = 'llama-3.3-70b-versatile';
 
     public function __construct()
     {
