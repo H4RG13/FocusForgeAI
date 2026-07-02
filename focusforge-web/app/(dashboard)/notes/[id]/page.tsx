@@ -114,7 +114,7 @@ export default function NoteDetailPage({ params }: { params: Promise<{ id: strin
               <SummaryPanel noteId={noteId} />
             </div>
             <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
-              <QuizPanel noteId={noteId} />
+              <QuizPanel noteId={noteId} wordCount={note.word_count ?? 0} />
             </div>
           </div>
 

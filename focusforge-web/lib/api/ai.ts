@@ -5,8 +5,8 @@ export const aiApi = {
   summarize: (noteId: number) =>
     apiClient.post<AIGeneration>(`/notes/${noteId}/summarize`).then(r => r.data),
 
-  generateQuiz: (noteId: number, questionCount = 5) =>
-    apiClient.post<AIGeneration>(`/notes/${noteId}/quiz`, { question_count: questionCount }).then(r => r.data),
+  generateQuiz: (noteId: number, questionCount = 5, quizType = 'multiple_choice') =>
+    apiClient.post<AIGeneration>(`/notes/${noteId}/quiz`, { question_count: questionCount, quiz_type: quizType }).then(r => r.data),
 
   pollGeneration: (id: number) =>
     apiClient.get<AIGeneration>(`/ai-generations/${id}`).then(r => r.data),

@@ -25,7 +25,7 @@ class MockAIClient implements AIClientInterface
         ];
     }
 
-    public function generateQuiz(string $content, string $title, int $questionCount = 5): array
+    public function generateQuiz(string $title, string $content, int $questionCount = 5, string $quizType = 'multiple_choice'): array
     {
         sleep(1);
 

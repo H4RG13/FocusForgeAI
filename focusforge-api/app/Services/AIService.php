@@ -43,12 +43,12 @@ class AIService
 
         GenerateSummaryJob::dispatch($generation, $note);
 
-        return $generation;
+        return $generation->fresh();
     }
 
-    public function requestQuiz(Note $note, User $user, int $questionCount = 5): AIGeneration
+    public function requestQuiz(Note $note, User $user, int $questionCount = 5, string $quizType = 'multiple_choice'): AIGeneration
     {
-        $prompt = new QuizPrompt($note->title, $note->content ?? '', $questionCount);
+        $prompt = new QuizPrompt($note->title, $note->content ?? '', $questionCount, $quizType);
 
         $existing = AIGeneration::where('input_hash', $prompt->inputHash())
             ->where('type', 'quiz')
@@ -69,9 +69,9 @@ class AIService
             'input_hash'       => $prompt->inputHash(),
         ]);
 
-        GenerateQuizJob::dispatch($generation, $note, $questionCount);
+        GenerateQuizJob::dispatch($generation, $note, $questionCount, $quizType);
 
-        return $generation;
+        return $generation->fresh();
     }
 
     public function chat(array $messages, User $user): array
@@ -104,7 +104,7 @@ class AIService
 
         GenerateStudyPlanJob::dispatch($generation, $topic, $context);
 
-        return $generation;
+        return $generation->fresh();
     }
 
     public function processStudyPlan(AIGeneration $generation, string $topic, string $context): void
@@ -145,12 +145,12 @@ class AIService
         }
     }
 
-    public function processQuiz(AIGeneration $generation, Note $note, int $questionCount): void
+    public function processQuiz(AIGeneration $generation, Note $note, int $questionCount, string $quizType = 'multiple_choice'): void
     {
         $generation->update(['status' => 'processing']);
 
         try {
-            $result = $this->client->generateQuiz($note->title, $note->content ?? '', $questionCount);
+            $result = $this->client->generateQuiz($note->title, $note->content ?? '', $questionCount, $quizType);
 
             $generation->update([
                 'status'            => 'completed',
@@ -165,6 +165,7 @@ class AIService
                 'note_id'          => $note->id,
                 'ai_generation_id' => $generation->id,
                 'title'            => $result['title'],
+                'quiz_type'        => $quizType,
                 'status'           => 'available',
             ]);
 

@@ -15,7 +15,8 @@ export function useSummarize(noteId: number) {
 export function useGenerateQuiz(noteId: number) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (questionCount?: number) => aiApi.generateQuiz(noteId, questionCount),
+    mutationFn: ({ questionCount, quizType }: { questionCount?: number; quizType?: string }) =>
+      aiApi.generateQuiz(noteId, questionCount, quizType),
     onSuccess: (gen) => {
       queryClient.setQueryData(['ai-generation', gen.id], gen);
     },

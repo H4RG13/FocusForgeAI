@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['user_id', 'note_id', 'ai_generation_id', 'title', 'status', 'score', 'attempts_count'])]
+#[Fillable(['user_id', 'note_id', 'ai_generation_id', 'title', 'quiz_type', 'status', 'score', 'attempts_count'])]
 class Quiz extends Model
 {
     use HasFactory;

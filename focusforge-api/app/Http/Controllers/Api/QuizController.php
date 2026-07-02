@@ -43,9 +43,13 @@ class QuizController extends Controller
         $correct   = 0;
         $results   = [];
 
+        $textBased = in_array($quiz->quiz_type, ['identification', 'enumeration']);
+
         foreach ($questions as $question) {
             $given   = $data['answers'][$question->id] ?? null;
-            $isRight = $given === $question->correct_answer;
+            $isRight = $textBased
+                ? strtolower(trim((string) $given)) === strtolower(trim($question->correct_answer))
+                : $given === $question->correct_answer;
 
             if ($isRight) {
                 $correct++;
