@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\AI\AIClientInterface;
+use App\AI\GroqClient;
 use App\AI\MockAIClient;
 use App\Models\AIGeneration;
 use App\Models\FocusSession;
@@ -18,7 +19,11 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->bind(AIClientInterface::class, MockAIClient::class);
+        $this->app->bind(AIClientInterface::class, function () {
+            return config('services.groq.key')
+                ? new GroqClient()
+                : new MockAIClient();
+        });
     }
 
     public function boot(): void
