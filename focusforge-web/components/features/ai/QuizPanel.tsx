@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
@@ -24,6 +24,13 @@ export default function QuizPanel({ noteId }: QuizPanelProps) {
 
   const activeGen = generation ?? generateQuiz.data;
   const isProcessing = activeGen?.status === 'pending' || activeGen?.status === 'processing';
+
+  useEffect(() => {
+    if (activeGen?.status === 'completed') {
+      refetchQuizzes();
+      setGenerationId(null);
+    }
+  }, [activeGen?.status]);
 
   function handleGenerate() {
     generateQuiz.mutate(5, {

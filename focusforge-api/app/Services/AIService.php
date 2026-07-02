@@ -43,7 +43,7 @@ class AIService
 
         GenerateSummaryJob::dispatch($generation, $note);
 
-        return $generation;
+        return $generation->fresh();
     }
 
     public function requestQuiz(Note $note, User $user, int $questionCount = 5): AIGeneration
@@ -71,7 +71,7 @@ class AIService
 
         GenerateQuizJob::dispatch($generation, $note, $questionCount);
 
-        return $generation;
+        return $generation->fresh();
     }
 
     public function chat(array $messages, User $user): array
@@ -104,7 +104,7 @@ class AIService
 
         GenerateStudyPlanJob::dispatch($generation, $topic, $context);
 
-        return $generation;
+        return $generation->fresh();
     }
 
     public function processStudyPlan(AIGeneration $generation, string $topic, string $context): void
