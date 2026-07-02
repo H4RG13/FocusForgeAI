@@ -38,7 +38,7 @@ class AIGeneration extends Model
 
     public function quiz(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        return $this->hasOne(Quiz::class);
+        return $this->hasOne(Quiz::class, 'ai_generation_id');
     }
 
     public function isCompleted(): bool
