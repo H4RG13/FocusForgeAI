@@ -107,10 +107,13 @@ class GroqClient implements AIClientInterface
         $raw   = $response['choices'][0]['message']['content'] ?? '{}';
         $usage = $response['usage'] ?? [];
 
-        // Strip any accidental markdown fences
-        $raw   = preg_replace('/^```json?\s*/i', '', trim($raw));
-        $raw   = preg_replace('/```$/', '', trim($raw));
-        $data  = json_decode($raw, true) ?? [];
+        // Extract the JSON object — find the first { and last } to handle any wrapping text
+        $start = strpos($raw, '{');
+        $end   = strrpos($raw, '}');
+        if ($start !== false && $end !== false && $end > $start) {
+            $raw = substr($raw, $start, $end - $start + 1);
+        }
+        $data = json_decode($raw, true) ?? [];
 
         return array_merge($data, [
             'title'             => $data['title'] ?? "Quiz: {$title}",
