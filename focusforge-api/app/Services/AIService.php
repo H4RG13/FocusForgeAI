@@ -53,6 +53,7 @@ class AIService
         $existing = AIGeneration::where('input_hash', $prompt->inputHash())
             ->where('type', 'quiz')
             ->where('status', 'completed')
+            ->whereHas('quiz')
             ->first();
 
         if ($existing) {

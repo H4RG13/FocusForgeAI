@@ -36,6 +36,11 @@ class AIGeneration extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function quiz(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Quiz::class);
+    }
+
     public function isCompleted(): bool
     {
         return $this->status === 'completed';
