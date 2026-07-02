@@ -175,6 +175,7 @@ class GroqClient implements AIClientInterface
         }
 
         $response = Http::withToken($this->apiKey)
+            ->withoutVerifying()
             ->timeout(30)
             ->post("{$this->baseUrl}/{$endpoint}", $payload);
 
