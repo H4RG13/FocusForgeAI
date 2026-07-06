@@ -197,6 +197,12 @@ class QuizController extends Controller
 
         if ($given === $correct) return true;
 
+        // Normalize spaces: collapse multiple spaces and compare without any spaces
+        // Handles cases like "F=ma" vs "F = ma"
+        $givenNoSpace   = preg_replace('/\s+/', '', $given);
+        $correctNoSpace = preg_replace('/\s+/', '', $correct);
+        if ($givenNoSpace === $correctNoSpace) return true;
+
         $stopWords = [
             'the','a','an','is','are','was','were','be','been',
             'of','in','on','at','to','for','with','by','from',
