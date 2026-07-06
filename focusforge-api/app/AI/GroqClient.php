@@ -51,6 +51,8 @@ class GroqClient implements AIClientInterface
 
     public function summarize(string $title, string $content): array
     {
+        $content  = $this->truncateContent($content, 3000); // ~4 000 tokens input
+
         $messages = [
             [
                 'role'    => 'system',
@@ -91,6 +93,8 @@ class GroqClient implements AIClientInterface
 
     public function generateQuiz(string $title, string $content, int $questionCount = 5, string $quizType = 'multiple_choice'): array
     {
+        $content  = $this->truncateContent($content, 2000); // ~2 700 tokens — leaves room for 8k output
+
         $prompt   = new \App\AI\QuizPrompt($title, $content, $questionCount, $quizType);
         $messages = [
             ['role' => 'system', 'content' => $prompt->systemPrompt()],
@@ -161,6 +165,21 @@ class GroqClient implements AIClientInterface
     }
 
     // ---------------------------------------------------------------- helpers
+
+    /**
+     * Truncate content to a safe word count so the total request stays
+     * under Groq's free-tier 12 000 TPM limit.
+     * ~1.33 tokens/word on average; leave headroom for system prompt + output.
+     */
+    private function truncateContent(string $content, int $maxWords): string
+    {
+        $words = preg_split('/\s+/', trim($content));
+        if (count($words) <= $maxWords) {
+            return $content;
+        }
+        return implode(' ', array_slice($words, 0, $maxWords))
+            . "\n\n[Content truncated to fit token limit.]";
+    }
 
     private function request(string $endpoint, array $payload): array
     {
