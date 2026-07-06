@@ -39,8 +39,7 @@ async function extractDocx(file: File): Promise<ExtractResult> {
 
 async function extractPdf(file: File): Promise<ExtractResult> {
   const pdfjsLib = await import('pdfjs-dist');
-  // Use CDN worker to avoid Next.js bundling issues with the worker file
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+  pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
