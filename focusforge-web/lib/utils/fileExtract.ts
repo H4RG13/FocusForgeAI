@@ -45,14 +45,35 @@ async function extractPdf(file: File): Promise<ExtractResult> {
   const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
   const pages: string[] = [];
+
   for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
+    const page      = await pdf.getPage(i);
     const textContent = await page.getTextContent();
-    const pageText = textContent.items
-      .map((item) => ('str' in item ? item.str : ''))
-      .join(' ')
-      .trim();
-    if (pageText) pages.push(pageText);
+
+    // Group text items by their Y position (rounded to 2pt tolerance) to reconstruct lines
+    const lineMap = new Map<number, { x: number; text: string }[]>();
+
+    for (const item of textContent.items) {
+      if (!('str' in item) || !item.str) continue;
+      const y = Math.round(item.transform[5] / 2) * 2; // 2pt bucket
+      const x = item.transform[4];
+      if (!lineMap.has(y)) lineMap.set(y, []);
+      lineMap.get(y)!.push({ x, text: item.str });
+    }
+
+    // Sort buckets top-to-bottom (PDF y=0 is at the bottom, so descending)
+    const lines = [...lineMap.entries()]
+      .sort(([ya], [yb]) => yb - ya)
+      .map(([, items]) =>
+        items
+          .sort((a, b) => a.x - b.x)
+          .map((i) => i.text)
+          .join('')
+          .trim(),
+      )
+      .filter(Boolean);
+
+    if (lines.length) pages.push(lines.join('\n'));
   }
 
   return { title: stripExtension(file.name), content: pages.join('\n\n') };
