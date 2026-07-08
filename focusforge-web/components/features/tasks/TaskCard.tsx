@@ -1,11 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Task } from '@/types/domain.types';
 import Badge from '@/components/ui/Badge';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { PRIORITY_COLORS, STATUS_COLORS, formatDate } from '@/lib/utils/format';
-import { useCompleteTask, useDeleteTask } from '@/hooks/useTasks';
+import { useCompleteTask, useDeleteTask, useUpdateTask } from '@/hooks/useTasks';
+
+const STATUS_OPTIONS = [
+  { value: 'todo',        label: 'To Do'       },
+  { value: 'in_progress', label: 'In Progress' },
+  { value: 'done',        label: 'Done'        },
+  { value: 'archived',    label: 'Archived'    },
+] as const;
+
+type StatusValue = typeof STATUS_OPTIONS[number]['value'];
 
 interface TaskCardProps {
   task: Task;
@@ -15,7 +24,28 @@ interface TaskCardProps {
 export default function TaskCard({ task, onEdit }: TaskCardProps) {
   const completeTask = useCompleteTask();
   const deleteTask   = useDeleteTask();
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const updateTask   = useUpdateTask();
+  const [confirmOpen,      setConfirmOpen]      = useState(false);
+  const [statusPickerOpen, setStatusPickerOpen] = useState(false);
+  const pickerRef = useRef<HTMLDivElement>(null);
+
+  // Close picker on outside click
+  useEffect(() => {
+    if (!statusPickerOpen) return;
+    function onOutside(e: MouseEvent) {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setStatusPickerOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', onOutside);
+    return () => document.removeEventListener('mousedown', onOutside);
+  }, [statusPickerOpen]);
+
+  function handleStatusSelect(status: StatusValue) {
+    setStatusPickerOpen(false);
+    if (status === task.status) return;
+    updateTask.mutate({ id: task.id, data: { status } });
+  }
 
   return (
     <>
@@ -55,7 +85,41 @@ export default function TaskCard({ task, onEdit }: TaskCardProps) {
           )}
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             <Badge color={PRIORITY_COLORS[task.priority]}>{task.priority}</Badge>
-            <Badge color={STATUS_COLORS[task.status]}>{task.status.replace('_', ' ')}</Badge>
+
+            {/* Clickable status badge with inline picker */}
+            <div ref={pickerRef} className="relative">
+              <button
+                onClick={() => setStatusPickerOpen((v) => !v)}
+                className="focus:outline-none"
+                title="Change status"
+              >
+                <Badge color={STATUS_COLORS[task.status]} className="cursor-pointer hover:opacity-80 transition-opacity">
+                  {task.status.replace('_', ' ')}
+                  <span className="ml-1 opacity-60">▾</span>
+                </Badge>
+              </button>
+
+              {statusPickerOpen && (
+                <div className="absolute left-0 top-full z-50 mt-1 min-w-[130px] rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-900">
+                  {STATUS_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => handleStatusSelect(opt.value)}
+                      className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${
+                        task.status === opt.value ? 'font-semibold' : 'text-gray-700 dark:text-gray-300'
+                      }`}
+                    >
+                      <span
+                        className="h-2 w-2 shrink-0 rounded-full"
+                        style={{ backgroundColor: STATUS_COLORS[opt.value] }}
+                      />
+                      {opt.label}
+                      {task.status === opt.value && <span className="ml-auto text-indigo-500">✓</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             {task.category && (
               <Badge style={{ backgroundColor: task.category.color + '20', color: task.category.color }}>
                 {task.category.name}
