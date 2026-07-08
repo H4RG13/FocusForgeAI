@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
 
+    // Health check (used by Railway)
+    Route::get('/health', fn () => response()->json(['status' => 'ok']));
+
     // Public auth routes
     Route::prefix('auth')->group(function () {
         Route::post('/register',        [AuthController::class, 'register']);
