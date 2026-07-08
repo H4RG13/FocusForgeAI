@@ -13,7 +13,6 @@ const navItems = [
   { href: ROUTES.DASHBOARD,  label: 'Dashboard',  icon: '⊞' },
   { href: ROUTES.TASKS,      label: 'Tasks',       icon: '✓' },
   { href: ROUTES.NOTES,      label: 'Notes',       icon: '📄' },
-  { href: ROUTES.CATEGORIES, label: 'Categories',  icon: '🏷️' },
   { href: ROUTES.FOCUS,      label: 'Focus',       icon: '⏱' },
   { href: ROUTES.ANALYTICS,  label: 'Analytics',   icon: '📊' },
 ];
