@@ -1,5 +1,4 @@
 FROM php:8.3-apache
-# cache-bust: 3
 
 # System dependencies
 RUN apt-get update && apt-get install -y \
@@ -11,8 +10,10 @@ RUN apt-get update && apt-get install -y \
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_pgsql mbstring exif bcmath zip pcntl gd
 
-# Fix Apache MPM conflict (php needs prefork)
-RUN a2dismod mpm_event && a2enmod mpm_prefork
+# Fix Apache MPM conflict — disable event/worker, ensure prefork is active
+RUN a2dismod mpm_event || true \
+    && a2dismod mpm_worker || true \
+    && a2enmod mpm_prefork
 
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -29,9 +30,8 @@ WORKDIR /var/www/html
 
 COPY . .
 
-# Remove dev-only config and clear bootstrap cache so Scribe service provider is gone
-RUN rm -f config/scribe.php \
-    && rm -f bootstrap/cache/packages.php \
+# Clear bootstrap cache so stale service providers don't linger
+RUN rm -f bootstrap/cache/packages.php \
     && rm -f bootstrap/cache/services.php \
     && rm -f bootstrap/cache/config.php
 
