@@ -25,6 +25,9 @@ WORKDIR /var/www/html
 
 COPY . .
 
+# Remove dev-only config that references packages not installed in production
+RUN rm -f config/scribe.php
+
 RUN composer install --no-dev --optimize-autoloader --no-interaction \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
