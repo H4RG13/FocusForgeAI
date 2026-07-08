@@ -36,18 +36,24 @@ Never push directly to `main` or `develop`. Always go through a feature branch.
 
 ---
 
-## Current Open Branches (as of 2026-07-10)
+## Current Open Branches (as of 2026-07-08)
 
 | Branch | Description | Status |
 |---|---|---|
-| `feature/phase5-dark-mode` | Dark mode across all pages | Open |
 | `feature/phase5-focus-timer-improvements` | Floating timer, session history, presets | Merged to develop |
+| `feature/phase5-groq-ai` | Replace MockAIClient with Groq API | Open |
+| `feature/phase5-note-card-title` | Bigger note card title, remove hover color | Open |
 | `feature/phase5-category-icon-picker` | Emoji icon picker + 36 color palette | Open |
 | `feature/phase5-confirm-modal` | Replace browser confirm() with modal | Open |
 | `feature/phase5-custom-favicon` | Custom SVG favicon | Open |
 | `feature/phase5-ai-chat-scroll` | Fix AI chat bubble scroll | Open |
-| `feature/phase5-note-card-title` | Bigger note card title, remove hover color | Open |
-| `feature/phase5-groq-ai` | Replace MockAIClient with Groq API | Open |
+| `feature/phase5-seed-notes` | Seed sample notes for testing | Open |
+| `feature/phase5-quiz-fix` | Fix delete quiz undefined bug + 404 error | Open |
+| `feature/phase5-quiz-customization` | Quiz answer keyword matching improvements | Open |
+| `feature/phase5-quiz-export` | Export quizzes to Word doc with drag-and-drop ordering | Open |
+| `feature/phase5-task-deadline-time` | Task datetime due date, deadline notifications, inline status picker on dashboard | Open |
+| `feature/phase5-category-in-notes` | Move category management into notes page, remove from sidebar | Open |
+| `feature/phase5-change-password` | Change password section in settings with eye toggle | Open |
 
 ---
 
