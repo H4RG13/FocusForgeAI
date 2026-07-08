@@ -106,7 +106,9 @@ export default function TaskCard({ task, onEdit }: TaskCardProps) {
                       key={opt.value}
                       onClick={() => handleStatusSelect(opt.value)}
                       className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${
-                        task.status === opt.value ? 'font-semibold' : 'text-gray-700 dark:text-gray-300'
+                        task.status === opt.value
+                          ? 'font-semibold text-indigo-600 dark:text-indigo-400'
+                          : 'text-gray-700 dark:text-gray-300'
                       }`}
                     >
                       <span

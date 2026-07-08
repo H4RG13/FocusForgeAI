@@ -42,6 +42,8 @@ export function useUpdateTask() {
       tasksApi.update(id, data).then((r) => r.data.data),
 
     onMutate: async ({ id, data }) => {
+      addToast({ type: 'success', message: 'Task updated.' });
+
       // Cancel any in-flight refetches so they don't overwrite the optimistic update
       await qc.cancelQueries({ queryKey: [TASKS_KEY] });
 
@@ -81,12 +83,7 @@ export function useUpdateTask() {
     },
 
     onSettled: () => {
-      // Sync with server after mutation (success or error)
       qc.invalidateQueries({ queryKey: [TASKS_KEY] });
-    },
-
-    onSuccess: () => {
-      addToast({ type: 'success', message: 'Task updated.' });
     },
   });
 }
