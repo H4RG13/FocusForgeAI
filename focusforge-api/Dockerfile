@@ -32,6 +32,9 @@ COPY docker/nginx.conf /etc/nginx/sites-available/default
 RUN rm -f /etc/nginx/sites-enabled/default \
     && ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
+# PHP-FPM pool config (unix socket)
+COPY docker/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
+
 # Supervisor config
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
