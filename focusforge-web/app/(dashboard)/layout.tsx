@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/layout/Sidebar';
 import FloatingAIChat from '@/components/features/ai/FloatingAIChat';
@@ -8,12 +8,19 @@ import FloatingTimer from '@/components/features/focus/FloatingTimer';
 import { useAuthStore } from '@/store/auth.store';
 import { authApi } from '@/lib/api/auth';
 import Spinner from '@/components/ui/Spinner';
-import { useState } from 'react';
+import { requestNotificationPermission } from '@/lib/utils/sound';
+import { useTaskDeadlineNotifier } from '@/hooks/useTaskDeadlineNotifier';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, setUser, hydrate } = useAuthStore();
   const router = useRouter();
   const [checking, setChecking] = useState(true);
+
+  useTaskDeadlineNotifier();
+
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
 
   useEffect(() => {
     hydrate();
