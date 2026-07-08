@@ -19,6 +19,16 @@ const schema = z.object({
 });
 type FormData = z.infer<typeof schema>;
 
+const passwordSchema = z.object({
+  current_password:      z.string().min(1, 'Current password is required'),
+  password:              z.string().min(8, 'New password must be at least 8 characters'),
+  password_confirmation: z.string().min(1, 'Please confirm your new password'),
+}).refine((d) => d.password === d.password_confirmation, {
+  message: 'Passwords do not match',
+  path: ['password_confirmation'],
+});
+type PasswordFormData = z.infer<typeof passwordSchema>;
+
 const TIMEZONES = [
   'UTC', 'Asia/Manila', 'Asia/Tokyo', 'Asia/Singapore', 'Asia/Hong_Kong',
   'America/New_York', 'America/Chicago', 'America/Los_Angeles',
@@ -29,7 +39,8 @@ export default function SettingsPage() {
   const { user, setUser } = useAuthStore();
   const { addToast } = useUIStore();
   const router = useRouter();
-  const [saving, setSaving] = useState(false);
+  const [saving,          setSaving]          = useState(false);
+  const [savingPassword,  setSavingPassword]  = useState(false);
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -42,6 +53,29 @@ export default function SettingsPage() {
 
   const timezoneValue = watch('timezone');
   const timezoneOptions = TIMEZONES.map((tz) => ({ value: tz, label: tz }));
+
+  const {
+    register: registerPw,
+    handleSubmit: handleSubmitPw,
+    reset: resetPw,
+    formState: { errors: pwErrors },
+  } = useForm<PasswordFormData>({ resolver: zodResolver(passwordSchema) });
+
+  async function onPasswordSubmit(data: PasswordFormData) {
+    setSavingPassword(true);
+    try {
+      await authApi.changePassword(data);
+      addToast({ type: 'success', message: 'Password changed successfully.' });
+      resetPw();
+    } catch (err: any) {
+      const msg = err?.response?.data?.errors?.current_password?.[0]
+        ?? err?.response?.data?.message
+        ?? 'Failed to change password.';
+      addToast({ type: 'error', message: msg });
+    } finally {
+      setSavingPassword(false);
+    }
+  }
 
   async function onSubmit(data: FormData) {
     setSaving(true);
@@ -126,6 +160,40 @@ export default function SettingsPage() {
 
           <div className="pt-2">
             <Button type="submit" loading={saving}>Save changes</Button>
+          </div>
+        </form>
+      </div>
+
+      {/* Change password card */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+        <h2 className="mb-4 text-base font-semibold text-gray-900 dark:text-gray-100">Change Password</h2>
+        <form onSubmit={handleSubmitPw(onPasswordSubmit)} className="space-y-4">
+          <Input
+            label="Current password"
+            id="current_password"
+            type="password"
+            placeholder="Enter current password"
+            error={pwErrors.current_password?.message}
+            {...registerPw('current_password')}
+          />
+          <Input
+            label="New password"
+            id="password"
+            type="password"
+            placeholder="At least 8 characters"
+            error={pwErrors.password?.message}
+            {...registerPw('password')}
+          />
+          <Input
+            label="Confirm new password"
+            id="password_confirmation"
+            type="password"
+            placeholder="Repeat new password"
+            error={pwErrors.password_confirmation?.message}
+            {...registerPw('password_confirmation')}
+          />
+          <div className="pt-1">
+            <Button type="submit" loading={savingPassword}>Change password</Button>
           </div>
         </form>
       </div>
