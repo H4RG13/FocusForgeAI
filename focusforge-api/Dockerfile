@@ -1,4 +1,5 @@
 FROM php:8.3-apache
+# cache-bust: 3
 
 # System dependencies
 RUN apt-get update && apt-get install -y \
