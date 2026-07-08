@@ -16,7 +16,7 @@ class Task extends Model
     protected function casts(): array
     {
         return [
-            'due_date'     => 'date',
+            'due_date'     => 'datetime',
             'completed_at' => 'datetime',
         ];
     }
@@ -48,7 +48,7 @@ class Task extends Model
 
     public function scopeOverdue(Builder $query): Builder
     {
-        return $query->where('due_date', '<', today())
+        return $query->where('due_date', '<', now())
                      ->whereNotIn('status', ['done', 'archived']);
     }
 }

@@ -51,7 +51,9 @@ export default function TaskForm({ defaultValues, onSubmit, onCancel, loading }:
       description: defaultValues?.description ?? '',
       priority: defaultValues?.priority ?? 'medium',
       status: defaultValues?.status ?? 'todo',
-      due_date: defaultValues?.due_date ?? '',
+      due_date: defaultValues?.due_date
+        ? defaultValues.due_date.replace(' ', 'T').slice(0, 16)
+        : '',
       category_id: defaultValues?.category?.id ?? null,
     },
   });
@@ -106,9 +108,9 @@ export default function TaskForm({ defaultValues, onSubmit, onCancel, loading }:
 
       <div className="grid grid-cols-2 gap-3">
         <Input
-          label="Due Date"
+          label="Due Date & Time"
           id="due_date"
-          type="date"
+          type="datetime-local"
           {...register('due_date')}
         />
         <div className="flex flex-col gap-1">

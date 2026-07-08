@@ -15,7 +15,7 @@ class TaskResource extends JsonResource
             'description'  => $this->description,
             'status'       => $this->status,
             'priority'     => $this->priority,
-            'due_date'     => $this->due_date?->toDateString(),
+            'due_date'     => $this->due_date?->format('Y-m-d\TH:i'),
             'completed_at' => $this->completed_at?->toIso8601String(),
             'category'     => new CategoryResource($this->whenLoaded('category')),
             'created_at'   => $this->created_at->toIso8601String(),
