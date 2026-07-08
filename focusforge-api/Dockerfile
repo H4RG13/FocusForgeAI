@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install -y \
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_pgsql mbstring exif bcmath zip pcntl gd
 
+# Fix Apache MPM conflict (php needs prefork)
+RUN a2dismod mpm_event && a2enmod mpm_prefork
+
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
@@ -25,8 +28,11 @@ WORKDIR /var/www/html
 
 COPY . .
 
-# Remove dev-only config that references packages not installed in production
-RUN rm -f config/scribe.php
+# Remove dev-only config and clear bootstrap cache so Scribe service provider is gone
+RUN rm -f config/scribe.php \
+    && rm -f bootstrap/cache/packages.php \
+    && rm -f bootstrap/cache/services.php \
+    && rm -f bootstrap/cache/config.php
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction \
     && chown -R www-data:www-data storage bootstrap/cache \
