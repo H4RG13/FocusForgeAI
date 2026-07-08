@@ -15,6 +15,6 @@ fi
 
 php artisan config:cache  || echo "config:cache failed"
 php artisan route:cache   || echo "route:cache failed"
-php artisan migrate --force || echo "migrate failed — check DB vars"
+php artisan migrate --force 2>&1 || echo "migrate failed"
 
 exec "$@"
