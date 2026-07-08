@@ -51,7 +51,7 @@ export function useUpdateTask() {
       const snapshots = qc.getQueriesData<unknown>({ queryKey: [TASKS_KEY] });
 
       // Patch every cached entry that contains this task
-      qc.setQueriesData<unknown>({ queryKey: [TASKS_KEY] }, (old) => {
+      qc.setQueriesData<unknown>({ queryKey: [TASKS_KEY] }, (old: unknown) => {
         if (!old) return old;
         // Plain Task[] (dashboard today / overdue)
         if (Array.isArray(old)) {
