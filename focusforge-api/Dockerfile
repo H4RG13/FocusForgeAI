@@ -23,7 +23,8 @@ RUN rm -f bootstrap/cache/packages.php \
     && rm -f bootstrap/cache/config.php
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction \
-    && chown -R www-data:www-data storage bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html \
     && chmod -R 775 storage bootstrap/cache
 
 # Nginx config
