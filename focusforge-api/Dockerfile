@@ -1,8 +1,8 @@
 FROM php:8.3-fpm
 
-# System dependencies + Nginx
+# System dependencies + Nginx + Supervisor
 RUN apt-get update && apt-get install -y \
-    nginx git curl zip unzip libpng-dev libonig-dev libxml2-dev libzip-dev libpq-dev \
+    nginx supervisor git curl zip unzip libpng-dev libonig-dev libxml2-dev libzip-dev libpq-dev \
     libjpeg62-turbo-dev libfreetype6-dev \
     && rm -rf /var/lib/apt/lists/*
 
@@ -31,10 +31,13 @@ COPY docker/nginx.conf /etc/nginx/sites-available/default
 RUN rm -f /etc/nginx/sites-enabled/default \
     && ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
+# Supervisor config
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE ${PORT:-80}
 
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
