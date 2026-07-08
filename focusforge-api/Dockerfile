@@ -3,6 +3,7 @@ FROM php:8.3-apache
 # System dependencies
 RUN apt-get update && apt-get install -y \
     git curl zip unzip libpng-dev libonig-dev libxml2-dev libzip-dev libpq-dev \
+    libjpeg62-turbo-dev libfreetype6-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # PHP extensions (gd required by phpoffice/phpword)
