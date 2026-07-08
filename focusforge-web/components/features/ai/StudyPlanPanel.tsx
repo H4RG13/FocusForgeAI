@@ -48,7 +48,7 @@ export default function StudyPlanPanel({ compact = false }: { compact?: boolean 
         clearInterval(interval);
         setPolling(false);
       }
-    }, 2000);
+    }, 4000);
   }
 
   return (

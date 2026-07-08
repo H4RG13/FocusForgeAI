@@ -95,10 +95,13 @@ export interface QuizQuestion {
   order_index: number;
 }
 
+export type QuizType = 'multiple_choice' | 'true_false' | 'identification' | 'enumeration';
+
 export interface Quiz {
   id: number;
   note_id: number;
   title: string;
+  quiz_type: QuizType;
   status: 'draft' | 'available' | 'completed';
   score: number | null;
   attempts_count: number;

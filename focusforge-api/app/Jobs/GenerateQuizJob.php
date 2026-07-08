@@ -18,12 +18,13 @@ class GenerateQuizJob implements ShouldQueue
     public function __construct(
         public readonly AIGeneration $generation,
         public readonly Note $note,
-        public readonly int $questionCount = 5,
+        public readonly int    $questionCount = 5,
+        public readonly string $quizType      = 'multiple_choice',
     ) {}
 
     public function handle(AIService $aiService): void
     {
-        $aiService->processQuiz($this->generation, $this->note, $this->questionCount);
+        $aiService->processQuiz($this->generation, $this->note, $this->questionCount, $this->quizType);
     }
 
     public function failed(\Throwable $e): void

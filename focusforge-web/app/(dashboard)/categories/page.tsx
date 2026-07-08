@@ -67,26 +67,13 @@ export default function CategoriesPage() {
                 key={cat.id}
                 className="flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm dark:border-gray-700 dark:bg-gray-900"
               >
-                <div className="flex items-center gap-3">
-                  {/* Color swatch */}
-                  <span
-                    className="h-5 w-5 rounded-full shrink-0"
-                    style={{ backgroundColor: cat.color }}
-                  />
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">{cat.name}</p>
-                    {cat.icon && (
-                      <p className="text-xs text-gray-400 dark:text-gray-500">{cat.icon}</p>
-                    )}
-                  </div>
-                  {/* Badge preview */}
-                  <span
-                    className="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium text-white"
-                    style={{ backgroundColor: cat.color }}
-                  >
-                    {cat.name}
-                  </span>
-                </div>
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold text-white"
+                  style={{ backgroundColor: cat.color }}
+                >
+                  {cat.icon && <span>{cat.icon}</span>}
+                  {cat.name}
+                </span>
 
                 <div className="flex gap-2">
                   <Button size="sm" variant="ghost" onClick={() => setEditing(cat)}>Edit</Button>

@@ -19,6 +19,9 @@ export const authApi = {
   updateProfile: (data: Partial<Pick<User, 'name' | 'timezone' | 'daily_focus_goal_minutes'>>) =>
     apiClient.put<ApiResponse<User>>('/auth/me', data),
 
+  changePassword: (data: { current_password: string; password: string; password_confirmation: string }) =>
+    apiClient.post<{ message: string }>('/auth/change-password', data),
+
   forgotPassword: (email: string) =>
     apiClient.post<{ message: string }>('/auth/forgot-password', { email }),
 
