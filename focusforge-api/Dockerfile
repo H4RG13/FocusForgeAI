@@ -1,12 +1,13 @@
-FROM php:8.2-apache
+FROM php:8.3-apache
 
 # System dependencies
 RUN apt-get update && apt-get install -y \
     git curl zip unzip libpng-dev libonig-dev libxml2-dev libzip-dev libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# PHP extensions
-RUN docker-php-ext-install pdo pdo_pgsql mbstring exif bcmath zip pcntl
+# PHP extensions (gd required by phpoffice/phpword)
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_pgsql mbstring exif bcmath zip pcntl gd
 
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
