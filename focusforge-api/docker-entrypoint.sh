@@ -16,6 +16,11 @@ php artisan config:cache  || echo "config:cache failed"
 php artisan route:cache   || echo "route:cache failed"
 php artisan migrate --force 2>&1 || echo "migrate failed"
 
-# Start PHP-FPM in background, then Nginx in foreground
-php-fpm --daemonize
-exec "$@"
+# Start PHP-FPM (foreground, not daemonized)
+php-fpm &
+
+# Wait for PHP-FPM to be ready
+sleep 2
+
+# Start Nginx in foreground
+exec nginx -g "daemon off;"
