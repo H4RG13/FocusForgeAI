@@ -222,10 +222,23 @@ export default function AdminUsersPage() {
                 <p className="truncate font-semibold text-gray-900 dark:text-gray-100">{user.name}</p>
                 <p className="truncate text-xs text-gray-400 dark:text-gray-500">{user.email}</p>
               </div>
-              <div className="flex shrink-0 gap-1.5">
-                <Badge color={ROLE_COLORS[user.role as Role] ?? 'bg-gray-100 text-gray-700'}>
-                  {user.role}
-                </Badge>
+              <div className="flex shrink-0 items-center gap-1.5">
+                {canChangeRole(user) ? (
+                  <select
+                    value={user.role}
+                    disabled={isPending('role', user.id)}
+                    onChange={(e) => handleRoleChange(user, e.target.value as Role)}
+                    className="w-24 rounded-md border border-gray-300 bg-white py-0.5 pl-1.5 pr-1 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+                  >
+                    <option value="student">student</option>
+                    <option value="teacher">teacher</option>
+                    <option value="admin">admin</option>
+                  </select>
+                ) : (
+                  <Badge color={ROLE_COLORS[user.role as Role] ?? 'bg-gray-100 text-gray-700'}>
+                    {user.role}
+                  </Badge>
+                )}
                 {user.is_banned
                   ? <Badge color="bg-red-100 text-red-700">Banned</Badge>
                   : <Badge color="bg-green-100 text-green-700">Active</Badge>
@@ -239,23 +252,6 @@ export default function AdminUsersPage() {
               <span>📝 {user.notes_count} notes</span>
               <span>Joined {new Date(user.created_at).toLocaleDateString()}</span>
             </div>
-
-            {/* Role select on mobile */}
-            {canChangeRole(user) && (
-              <div className="mt-3">
-                <label className="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400">Assign role</label>
-                <select
-                  value={user.role}
-                  disabled={isPending('role', user.id)}
-                  onChange={(e) => handleRoleChange(user, e.target.value as Role)}
-                  className="w-full rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
-                >
-                  <option value="student">student</option>
-                  <option value="teacher">teacher</option>
-                  <option value="admin">admin</option>
-                </select>
-              </div>
-            )}
 
             {/* Actions */}
             <div className="mt-3 flex flex-wrap gap-2">
