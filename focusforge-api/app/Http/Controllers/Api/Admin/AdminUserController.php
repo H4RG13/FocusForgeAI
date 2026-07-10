@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AdminUserResource;
+use App\Models\RoleAuditLog;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -28,6 +29,48 @@ class AdminUserController extends Controller
         return response()->json(new AdminUserResource($user));
     }
 
+    public function assignRole(Request $request, User $user): JsonResponse
+    {
+        $request->validate([
+            'role' => ['required', 'in:student,teacher,admin'],
+        ]);
+
+        $admin = $request->user();
+
+        if ($user->id === $admin->id) {
+            return response()->json(['message' => 'You cannot change your own role.'], 422);
+        }
+
+        if ($user->role === 'admin' && $request->role !== 'admin') {
+            return response()->json(['message' => 'You cannot change another admin\'s role.'], 422);
+        }
+
+        $oldRole = $user->role;
+        $newRole = $request->role;
+
+        if ($oldRole === $newRole) {
+            return response()->json(['message' => "User {$user->name} already has the role '{$newRole}'."]);
+        }
+
+        $user->update(['role' => $newRole]);
+
+        RoleAuditLog::create([
+            'target_user_id'    => $user->id,
+            'changed_by_user_id' => $admin->id,
+            'old_role'          => $oldRole,
+            'new_role'          => $newRole,
+        ]);
+
+        if ($newRole !== 'student') {
+            $user->tokens()->delete();
+        }
+
+        return response()->json([
+            'message' => "Role updated: {$user->name} is now '{$newRole}'.",
+            'data'    => new AdminUserResource($user),
+        ]);
+    }
+
     public function promote(User $user): JsonResponse
     {
         $user->update(['role' => 'admin']);
@@ -40,8 +83,8 @@ class AdminUserController extends Controller
             return response()->json(['message' => 'You cannot demote yourself.'], 422);
         }
 
-        $user->update(['role' => 'user']);
-        return response()->json(['message' => "User {$user->name} demoted to user."]);
+        $user->update(['role' => 'student']);
+        return response()->json(['message' => "User {$user->name} demoted to student."]);
     }
 
     public function ban(User $user): JsonResponse

@@ -62,6 +62,16 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
+    public function isTeacher(): bool
+    {
+        return $this->role === 'teacher';
+    }
+
+    public function isStudent(): bool
+    {
+        return $this->role === 'student';
+    }
+
     public function isBanned(): bool
     {
         return $this->banned_at !== null;

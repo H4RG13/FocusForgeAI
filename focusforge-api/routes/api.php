@@ -76,6 +76,7 @@ Route::prefix('v1')->group(function () {
             Route::get('stats',                              [AdminStatsController::class, 'index']);
             Route::get('users',                              [AdminUserController::class, 'index']);
             Route::get('users/{user}',                       [AdminUserController::class, 'show']);
+            Route::patch('users/{user}/assign-role',         [AdminUserController::class, 'assignRole']);
             Route::patch('users/{user}/promote',             [AdminUserController::class, 'promote']);
             Route::patch('users/{user}/demote',              [AdminUserController::class, 'demote']);
             Route::patch('users/{user}/ban',                 [AdminUserController::class, 'ban']);
