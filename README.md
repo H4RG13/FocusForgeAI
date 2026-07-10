@@ -1995,7 +1995,7 @@ Goal: Introduce role-based access control separating Teachers, Students, and Adm
 
 Roles:
   Student  — current system experience (tasks, notes, focus timer, AI quiz/summary)
-  Teacher  — lesson plan builder, AI image-enhanced quiz generator, class management
+  Teacher  — lesson plan builder, AI image-enhanced quiz generator, publish plans/quizzes for any student to discover
   Admin    — full access to all features across both modes + admin panel; can assign/change any user's role (Student ↔ Teacher)
 
 Backend:
@@ -2006,9 +2006,9 @@ Backend:
   □ Extend quiz generation to support image generation (DALL·E / GPT-4o vision)
   □ GenerateQuizImageJob — generates child-appropriate illustrations per question
   □ Store generated images in S3/R2, reference via quiz_items.image_url
-  □ Teacher class/group management (ClassRoom model, enroll students)
-  □ Assign lesson plans and quizzes to a classroom
-  □ Student quiz attempt tracking per classroom assignment
+  □ Teachers publish lesson plans and quizzes (publicly discoverable by any student)
+  □ Students browse and take any published quiz / lesson plan independently
+  □ Student quiz attempt tracking (own history, no teacher-student link required)
 
 Frontend:
   □ Role-aware navigation (sidebar items differ per role)
@@ -2016,8 +2016,8 @@ Frontend:
   □ Lesson plan builder UI (rich text editor, grade-level selector, objectives list)
   □ Quiz generator with "include illustrations" toggle (elementary mode)
   □ Image preview inside generated quiz questions
-  □ Classroom management page (create class, invite/enroll students)
-  □ Student view — assigned lessons and quizzes from teacher
+  □ Teacher publish/unpublish toggle on lesson plans and quizzes
+  □ Student browse page — discover published lesson plans and quizzes from any teacher
   □ Admin panel — user list with role badges, assign/change role per user (Student ↔ Teacher), system-wide stats
   □ Role assignment endpoint: PATCH /api/admin/users/{id}/role (admin-only, validates enum)
   □ Audit log entry on every role change (who changed it, old role → new role, timestamp)
@@ -2142,9 +2142,8 @@ Role Matrix:
   Analytics (own data)             ✓         ✓         ✓
   Lesson Plan Builder              ✗         ✓         ✓
   AI Image Quiz Generator          ✗         ✓         ✓
-  Classroom Management             ✗         ✓         ✓
-  Assign Plans & Quizzes           ✗         ✓         ✓
-  View Assigned Lessons            ✓         ✗         ✓
+  Publish Lesson Plans & Quizzes   ✗         ✓         ✓
+  Browse Published Content         ✓         ✗         ✓
   Admin Panel (all users/data)     ✗         ✗         ✓
   Assign / Change User Roles       ✗         ✗         ✓  ← admin decides who is Teacher or Student
 
@@ -2178,10 +2177,34 @@ Database additions:
   users.role                ENUM student|teacher|admin  DEFAULT student
   lesson_plans              id, user_id, title, subject, grade_level, duration_minutes, ...
   lesson_plan_sections      id, lesson_plan_id, type, content (jsonb), sort_order
-  classrooms                id, teacher_id, name, code (join code)
-  classroom_students        classroom_id, student_id
-  classroom_assignments     id, classroom_id, assignable_type (LessonPlan|Quiz), assignable_id, due_at
+  lesson_plans.is_published boolean DEFAULT false  (teacher publishes; students can browse)
+  quizzes.is_published      boolean DEFAULT false  (same publish/unpublish toggle)
+  quiz_attempts             id, user_id, quiz_id, score, answers (jsonb), completed_at
   quiz_items.image_url      nullable string (S3 URL for AI-generated illustration)
+
+  Note — no classroom or teacher↔student relationship in this phase.
+  Teachers (elem, high school, etc.) and students are fully independent users.
+  Classroom/group management is deferred → see 14.8 below.
+```
+
+### 14.8 Classroom & Group Management (Deferred)
+
+```
+Deferred from Phase 5 — teachers and students are independent users with no
+direct relationship. This feature is kept here as a future option in case
+teachers request the ability to group students and assign content directly.
+
+Potential features:
+  - Teacher creates a classroom with a join code
+  - Students join via code → linked to that teacher's classroom
+  - Teacher assigns specific lesson plans or quizzes to a classroom with a due date
+  - Students see "Assigned to me" section with teacher-curated content
+  - Teacher sees completion status per student
+
+Would require:
+  classrooms              id, teacher_id, name, join_code
+  classroom_students      classroom_id, student_id
+  classroom_assignments   id, classroom_id, assignable_type, assignable_id, due_at
 ```
 
 ---
