@@ -12,6 +12,9 @@ export const adminApi = {
   getUser: (id: number) =>
     apiClient.get<AdminUser>(`/admin/users/${id}`).then(r => r.data),
 
+  assignRole: (id: number, role: 'student' | 'teacher' | 'admin') =>
+    apiClient.patch(`/admin/users/${id}/assign-role`, { role }).then(r => r.data),
+
   promoteUser: (id: number) =>
     apiClient.patch(`/admin/users/${id}/promote`).then(r => r.data),
 
