@@ -1987,6 +1987,42 @@ Quality:
   □ Load testing (k6, 500 concurrent users)
 ```
 
+### Phase 5 — Teacher & Student Modes (Planned)
+
+```
+Goal: Introduce role-based access control separating Teachers, Students, and Admins,
+      with a new Teacher workspace for lesson planning and elementary-focused quiz creation
+
+Roles:
+  Student  — current system experience (tasks, notes, focus timer, AI quiz/summary)
+  Teacher  — lesson plan builder, AI image-enhanced quiz generator, class management
+  Admin    — full access to all features across both modes + admin panel; can assign/change any user's role (Student ↔ Teacher)
+
+Backend:
+  □ Add `role` column to users table (enum: student | teacher | admin)
+  □ Role-based middleware and policies (RoleMiddleware, Gate definitions)
+  □ LessonPlan model + CRUD endpoints (title, subject, grade_level, objectives, content)
+  □ LessonPlanSection model (supports multiple content blocks per plan)
+  □ Extend quiz generation to support image generation (DALL·E / GPT-4o vision)
+  □ GenerateQuizImageJob — generates child-appropriate illustrations per question
+  □ Store generated images in S3/R2, reference via quiz_items.image_url
+  □ Teacher class/group management (ClassRoom model, enroll students)
+  □ Assign lesson plans and quizzes to a classroom
+  □ Student quiz attempt tracking per classroom assignment
+
+Frontend:
+  □ Role-aware navigation (sidebar items differ per role)
+  □ Teacher dashboard — class overview, pending plans, recent quiz results
+  □ Lesson plan builder UI (rich text editor, grade-level selector, objectives list)
+  □ Quiz generator with "include illustrations" toggle (elementary mode)
+  □ Image preview inside generated quiz questions
+  □ Classroom management page (create class, invite/enroll students)
+  □ Student view — assigned lessons and quizzes from teacher
+  □ Admin panel — user list with role badges, assign/change role per user (Student ↔ Teacher), system-wide stats
+  □ Role assignment endpoint: PATCH /api/admin/users/{id}/role (admin-only, validates enum)
+  □ Audit log entry on every role change (who changed it, old role → new role, timestamp)
+```
+
 ---
 
 ## 14. Future Enhancements
@@ -2088,6 +2124,66 @@ Stack:
   - ProcessNoteEmbeddingsJob: triggered on note save
 ```
 
+### 14.7 Teacher & Student Role System
+
+```
+Motivation:
+  Teachers (suggested by educator feedback) need tools to create structured lesson plans
+  and generate visually engaging quizzes suitable for elementary-age students.
+  Students continue to use the existing productivity system but can also receive
+  teacher-assigned content. Admins oversee everything.
+
+Role Matrix:
+  Feature                        Student   Teacher   Admin
+  ─────────────────────────────  ───────   ───────   ─────
+  Tasks, Notes, Focus Timer        ✓         ✓         ✓
+  AI Summary & Quiz (own notes)    ✓         ✓         ✓
+  AI Study Plan / Chat             ✓         ✓         ✓
+  Analytics (own data)             ✓         ✓         ✓
+  Lesson Plan Builder              ✗         ✓         ✓
+  AI Image Quiz Generator          ✗         ✓         ✓
+  Classroom Management             ✗         ✓         ✓
+  Assign Plans & Quizzes           ✗         ✓         ✓
+  View Assigned Lessons            ✓         ✗         ✓
+  Admin Panel (all users/data)     ✗         ✗         ✓
+  Assign / Change User Roles       ✗         ✗         ✓  ← admin decides who is Teacher or Student
+
+AI Image Generation for Quizzes:
+  - Teacher enables "Include Illustrations" when generating a quiz
+  - System prompt instructs GPT-4o to describe a child-appropriate illustration
+    per question; DALL·E 3 renders each image
+  - Images stored in S3/R2, thumbnails cached via CDN
+  - Students see question + illustration side-by-side during quiz
+
+Lesson Plan Structure:
+  LessonPlan
+    title, subject, grade_level (K–6), duration_minutes
+    objectives: string[]
+    materials: string[]
+    sections: LessonPlanSection[]
+      type: introduction | activity | discussion | assessment | wrap_up
+      content: rich text (Tiptap / ProseMirror JSON)
+      estimated_minutes: int
+
+Admin Role Assignment Flow:
+  - New users default to role = student on registration
+  - Admin opens Admin Panel → Users tab → sees a table of all users with their current role
+  - Admin clicks a role badge (e.g. "Student") → dropdown appears: Student | Teacher
+  - Selecting a new role calls PATCH /api/admin/users/{id}/role
+  - API validates the role enum, updates users.role, writes to role_audit_log
+  - User's session picks up the new role on next request (role re-read from DB via Sanctum)
+  - Admin cannot change another Admin's role (self-protection rule)
+
+Database additions:
+  users.role                ENUM student|teacher|admin  DEFAULT student
+  lesson_plans              id, user_id, title, subject, grade_level, duration_minutes, ...
+  lesson_plan_sections      id, lesson_plan_id, type, content (jsonb), sort_order
+  classrooms                id, teacher_id, name, code (join code)
+  classroom_students        classroom_id, student_id
+  classroom_assignments     id, classroom_id, assignable_type (LessonPlan|Quiz), assignable_id, due_at
+  quiz_items.image_url      nullable string (S3 URL for AI-generated illustration)
+```
+
 ---
 
 *This document is a living specification. It should be updated as architectural decisions evolve, new features are scoped, and production learnings surface. All significant architectural changes should be proposed as ADRs (Architecture Decision Records) and reviewed before implementation.*
@@ -2095,5 +2191,5 @@ Stack:
 ---
 
 **Document Owner:** Engineering Lead
-**Last Reviewed:** 2026-05-27
-**Next Review:** 2026-08-27
+**Last Reviewed:** 2026-07-09
+**Next Review:** 2026-10-09
