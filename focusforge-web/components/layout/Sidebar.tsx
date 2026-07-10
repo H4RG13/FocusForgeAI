@@ -9,18 +9,26 @@ import { useAuthStore } from '@/store/auth.store';
 import { authApi } from '@/lib/api/auth';
 import ProfileDropdown from './ProfileDropdown';
 
-const navItems = [
-  { href: ROUTES.DASHBOARD,  label: 'Dashboard',  icon: '⊞' },
-  { href: ROUTES.TASKS,      label: 'Tasks',       icon: '✓' },
-  { href: ROUTES.NOTES,      label: 'Notes',       icon: '📄' },
-  { href: ROUTES.FOCUS,      label: 'Focus',       icon: '⏱' },
-  { href: ROUTES.ANALYTICS,  label: 'Analytics',   icon: '📊' },
+const baseNavItems = [
+  { href: ROUTES.DASHBOARD,  label: 'Dashboard',  icon: '⊞', roles: ['student', 'teacher', 'admin'] },
+  { href: ROUTES.TASKS,      label: 'Tasks',       icon: '✓', roles: ['student', 'teacher', 'admin'] },
+  { href: ROUTES.NOTES,      label: 'Notes',       icon: '📄', roles: ['student', 'teacher', 'admin'] },
+  { href: ROUTES.FOCUS,      label: 'Focus',       icon: '⏱', roles: ['student', 'teacher', 'admin'] },
+  { href: ROUTES.ANALYTICS,  label: 'Analytics',   icon: '📊', roles: ['student', 'teacher', 'admin'] },
+  { href: ROUTES.LESSON_PLANS, label: 'Lesson Plans', icon: '📚', roles: ['teacher', 'admin'] },
 ];
 
-function NavList({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+const ROLE_BADGE: Record<string, string> = {
+  teacher: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
+  admin:   'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+  student: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+};
+
+function NavList({ pathname, role, onNavigate }: { pathname: string; role?: string; onNavigate?: () => void }) {
+  const items = baseNavItems.filter(item => !role || item.roles.includes(role));
   return (
     <ul className="space-y-0.5">
-      {navItems.map((item) => {
+      {items.map((item) => {
         const active = pathname === item.href || pathname.startsWith(item.href + '/');
         return (
           <li key={item.href}>
@@ -105,7 +113,7 @@ export default function Sidebar() {
         </div>
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Menu</p>
-          <NavList pathname={pathname} onNavigate={() => setMobileOpen(false)} />
+          <NavList pathname={pathname} role={user?.role} onNavigate={() => setMobileOpen(false)} />
 
           {/* Mobile-only action buttons */}
           <div className="mt-4 space-y-1 border-t border-gray-100 pt-4 dark:border-gray-800">
@@ -129,13 +137,20 @@ export default function Sidebar() {
 
       {/* Desktop sidebar */}
       <aside className="hidden h-full w-64 shrink-0 flex-col border-r border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 lg:flex">
-        <div className="flex h-16 items-center gap-2 border-b border-gray-200 px-6 dark:border-gray-700">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white font-bold text-sm">FF</div>
-          <span className="font-semibold text-gray-900 dark:text-gray-100">FocusForge AI</span>
+        <div className="flex h-16 items-center justify-between border-b border-gray-200 px-6 dark:border-gray-700">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white font-bold text-sm">FF</div>
+            <span className="font-semibold text-gray-900 dark:text-gray-100">FocusForge AI</span>
+          </div>
+          {user?.role && user.role !== 'student' && (
+            <span className={cn('rounded-full px-2 py-0.5 text-xs font-semibold capitalize', ROLE_BADGE[user.role])}>
+              {user.role}
+            </span>
+          )}
         </div>
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Menu</p>
-          <NavList pathname={pathname} />
+          <NavList pathname={pathname} role={user?.role} />
         </nav>
       </aside>
     </>
