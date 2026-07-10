@@ -40,6 +40,39 @@ class QuizController extends Controller
         return response()->json(null, 204);
     }
 
+    // PATCH /quizzes/{quiz}/publish  — teacher publishes quiz for students to browse
+    public function publish(Quiz $quiz): JsonResponse
+    {
+        $this->authorize('delete', $quiz); // same ownership check
+
+        $quiz->update(['is_published' => true]);
+
+        return response()->json(['message' => 'Quiz published.']);
+    }
+
+    // PATCH /quizzes/{quiz}/unpublish
+    public function unpublish(Quiz $quiz): JsonResponse
+    {
+        $this->authorize('delete', $quiz);
+
+        $quiz->update(['is_published' => false]);
+
+        return response()->json(['message' => 'Quiz unpublished.']);
+    }
+
+    // GET /quizzes/published  — students browse all published quizzes
+    public function published(Request $request): JsonResponse
+    {
+        $quizzes = Quiz::with(['questions', 'user:id,name'])
+            ->where('is_published', true)
+            ->when($request->search, fn($q, $v) => $q->where('title', 'like', "%{$v}%"))
+            ->when($request->quiz_type, fn($q, $v) => $q->where('quiz_type', $v))
+            ->latest()
+            ->paginate(20);
+
+        return response()->json(QuizResource::collection($quizzes)->response()->getData());
+    }
+
     public function export(Request $request, Note $note): StreamedResponse
     {
         $this->authorize('view', $note);

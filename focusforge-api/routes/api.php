@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Admin\AdminUserController;
 use App\Http\Controllers\Api\AIGenerationController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\LessonPlanController;
 use App\Http\Controllers\Api\NoteController;
 use App\Http\Controllers\Api\QuizController;
 use App\Http\Controllers\Api\TaskController;
@@ -87,8 +88,20 @@ Route::prefix('v1')->group(function () {
         // Quizzes
         Route::get('notes/{note}/quizzes',        [QuizController::class, 'index']);
         Route::get('notes/{note}/quizzes/export', [QuizController::class, 'export']);
+        Route::get('quizzes/published',           [QuizController::class, 'published']);
         Route::get('quizzes/{quiz}',              [QuizController::class, 'show']);
         Route::post('quizzes/{quiz}/submit',      [QuizController::class, 'submit']);
+        Route::patch('quizzes/{quiz}/publish',    [QuizController::class, 'publish']);
+        Route::patch('quizzes/{quiz}/unpublish',  [QuizController::class, 'unpublish']);
         Route::delete('quizzes/{quiz}',           [QuizController::class, 'destroy']);
+
+        // Lesson Plans — teachers create/edit; students browse published
+        Route::get('lesson-plans',                          [LessonPlanController::class, 'index']);
+        Route::get('lesson-plans/{lessonPlan}',             [LessonPlanController::class, 'show']);
+        Route::post('lesson-plans',                         [LessonPlanController::class, 'store']);
+        Route::put('lesson-plans/{lessonPlan}',             [LessonPlanController::class, 'update']);
+        Route::delete('lesson-plans/{lessonPlan}',          [LessonPlanController::class, 'destroy']);
+        Route::patch('lesson-plans/{lessonPlan}/publish',   [LessonPlanController::class, 'publish']);
+        Route::patch('lesson-plans/{lessonPlan}/unpublish', [LessonPlanController::class, 'unpublish']);
     });
 });
