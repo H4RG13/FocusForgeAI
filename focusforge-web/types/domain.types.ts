@@ -2,7 +2,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  role: 'user' | 'admin';
+  role: 'student' | 'teacher' | 'admin';
   timezone: string;
   daily_focus_goal_minutes: number;
   email_verified_at: string | null;
