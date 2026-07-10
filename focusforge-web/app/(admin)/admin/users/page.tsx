@@ -117,16 +117,16 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Desktop table */}
-      <div className="hidden md:block rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden dark:border-gray-700 dark:bg-gray-900">
+      <div className="hidden md:block rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
         <table className="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="px-4 py-3 text-left font-semibold text-gray-500 dark:text-gray-400">User</th>
+              <th className="rounded-tl-xl px-4 py-3 text-left font-semibold text-gray-500 dark:text-gray-400">User</th>
               <th className="px-4 py-3 text-left font-semibold text-gray-500 dark:text-gray-400">Role</th>
               <th className="px-4 py-3 text-left font-semibold text-gray-500 dark:text-gray-400">Status</th>
               <th className="px-4 py-3 text-right font-semibold text-gray-500 dark:text-gray-400">Tasks / Notes</th>
               <th className="px-4 py-3 text-left font-semibold text-gray-500 dark:text-gray-400">Joined</th>
-              <th className="px-4 py-3 text-right font-semibold text-gray-500 dark:text-gray-400">Actions</th>
+              <th className="rounded-tr-xl px-4 py-3 text-right font-semibold text-gray-500 dark:text-gray-400">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
