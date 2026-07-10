@@ -19,6 +19,12 @@ const ROLE_COLORS: Record<Role, string> = {
   admin:   'bg-red-100 text-red-700',
 };
 
+const ROLE_OPTIONS = [
+  { value: 'student', label: 'Student' },
+  { value: 'teacher', label: 'Teacher' },
+  { value: 'admin',   label: 'Admin'   },
+];
+
 export default function AdminUsersPage() {
   const queryClient  = useQueryClient();
   const currentUser  = useAuthStore(s => s.user);
@@ -142,21 +148,13 @@ export default function AdminUsersPage() {
                 {/* Role — dropdown if changeable, badge if self or admin */}
                 <td className="px-4 py-3">
                   {canChangeRole(user) ? (
-                    <div className="relative w-28">
-                      <select
-                        value={user.role}
-                        disabled={isPending('role', user.id)}
-                        onChange={(e) => handleRoleChange(user, e.target.value as Role)}
-                        className="w-full appearance-none rounded-md border border-gray-300 bg-white py-1 pl-2 pr-6 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
-                      >
-                        <option value="student">student</option>
-                        <option value="teacher">teacher</option>
-                        <option value="admin">admin</option>
-                      </select>
-                      {isPending('role', user.id) && (
-                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs animate-spin">⟳</span>
-                      )}
-                    </div>
+                    <SelectInput
+                      value={user.role}
+                      disabled={isPending('role', user.id)}
+                      onChange={(v) => handleRoleChange(user, v as Role)}
+                      options={ROLE_OPTIONS}
+                      className="w-32"
+                    />
                   ) : (
                     <Badge color={ROLE_COLORS[user.role as Role] ?? 'bg-gray-100 text-gray-700'}>
                       {user.role}
@@ -224,16 +222,13 @@ export default function AdminUsersPage() {
               </div>
               <div className="flex shrink-0 items-center gap-1.5">
                 {canChangeRole(user) ? (
-                  <select
+                  <SelectInput
                     value={user.role}
                     disabled={isPending('role', user.id)}
-                    onChange={(e) => handleRoleChange(user, e.target.value as Role)}
-                    className="w-24 rounded-md border border-gray-300 bg-white py-0.5 pl-1.5 pr-1 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
-                  >
-                    <option value="student">student</option>
-                    <option value="teacher">teacher</option>
-                    <option value="admin">admin</option>
-                  </select>
+                    onChange={(v) => handleRoleChange(user, v as Role)}
+                    options={ROLE_OPTIONS}
+                    className="w-32"
+                  />
                 ) : (
                   <Badge color={ROLE_COLORS[user.role as Role] ?? 'bg-gray-100 text-gray-700'}>
                     {user.role}
