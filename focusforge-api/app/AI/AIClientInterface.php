@@ -11,4 +11,6 @@ interface AIClientInterface
     public function chat(array $messages): array;
 
     public function generateStudyPlan(string $topic, string $context): array;
+
+    public function parseLessonPlan(string $content): array;
 }

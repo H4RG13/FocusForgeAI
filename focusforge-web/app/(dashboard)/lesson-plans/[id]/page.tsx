@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { lessonPlanApi } from '@/lib/api/lessonPlans';
@@ -33,6 +34,8 @@ export default function LessonPlanDetailPage() {
   const qc      = useQueryClient();
   const isOwnerOrAdmin = (authorId?: number) =>
     user?.role === 'admin' || user?.id === authorId;
+
+  const [exporting, setExporting] = useState<'json' | 'docx' | null>(null);
 
   const { data: plan, isLoading } = useQuery({
     queryKey: ['lesson-plan', id],
@@ -81,22 +84,48 @@ export default function LessonPlanDetailPage() {
             )}
           </div>
 
-          {isOwnerOrAdmin(plan.author?.id) && (
-            <div className="flex shrink-0 gap-2">
-              <Button size="sm" variant="ghost" onClick={() => router.push(ROUTES.LESSON_PLAN_EDIT(plan.id))}>
-                Edit
-              </Button>
-              {plan.is_published ? (
-                <Button size="sm" variant="ghost" onClick={() => unpublish.mutate()} loading={unpublish.isPending}>
-                  Unpublish
+          <div className="flex shrink-0 flex-wrap gap-2">
+            {isOwnerOrAdmin(plan.author?.id) && (
+              <>
+                <Button size="sm" variant="ghost" onClick={() => router.push(ROUTES.LESSON_PLAN_EDIT(plan.id))}>
+                  Edit
                 </Button>
-              ) : (
-                <Button size="sm" onClick={() => publish.mutate()} loading={publish.isPending}>
-                  Publish
-                </Button>
-              )}
-            </div>
-          )}
+                {plan.is_published ? (
+                  <Button size="sm" variant="ghost" onClick={() => unpublish.mutate()} loading={unpublish.isPending}>
+                    Unpublish
+                  </Button>
+                ) : (
+                  <Button size="sm" onClick={() => publish.mutate()} loading={publish.isPending}>
+                    Publish
+                  </Button>
+                )}
+              </>
+            )}
+            <Button
+              size="sm"
+              variant="ghost"
+              loading={exporting === 'json'}
+              onClick={async () => {
+                setExporting('json');
+                try { await lessonPlanApi.exportJson(plan.id, `${plan.title}-lesson-plan.json`); }
+                finally { setExporting(null); }
+              }}
+            >
+              ↓ JSON
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              loading={exporting === 'docx'}
+              onClick={async () => {
+                setExporting('docx');
+                try { await lessonPlanApi.exportDocx(plan.id, `${plan.title}-lesson-plan.docx`); }
+                finally { setExporting(null); }
+              }}
+            >
+              ↓ Word
+            </Button>
+          </div>
         </div>
 
         {/* Description */}

@@ -32,4 +32,40 @@ export const lessonPlanApi = {
 
   unpublish: (id: number) =>
     apiClient.patch(`/lesson-plans/${id}/unpublish`).then(r => r.data),
+
+  exportJson: async (id: number, filename: string): Promise<void> => {
+    const res = await apiClient.get(`/lesson-plans/${id}/export/json`, { responseType: 'blob' });
+    const url = URL.createObjectURL(new Blob([res.data], { type: 'application/json' }));
+    const a   = document.createElement('a');
+    a.href     = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
+
+  exportDocx: async (id: number, filename: string): Promise<void> => {
+    const res = await apiClient.get(`/lesson-plans/${id}/export/docx`, { responseType: 'blob' });
+    const url = URL.createObjectURL(
+      new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+    );
+    const a   = document.createElement('a');
+    a.href     = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
+
+  importFile: (file: File): Promise<Partial<LessonPlan>> => {
+    const form = new FormData();
+    form.append('file', file);
+    return apiClient
+      .post<{ data: Partial<LessonPlan> }>('/lesson-plans/import', form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data.data);
+  },
 };
