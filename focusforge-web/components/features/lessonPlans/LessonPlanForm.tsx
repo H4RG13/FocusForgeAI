@@ -128,51 +128,42 @@ export default function LessonPlanForm({ initial, onSubmit, onCancel, loading }:
         <div className="space-y-3">
           {sections.map((section, i) => (
             <div key={i} className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
-              {/* Section header row */}
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-xs font-medium text-gray-400 dark:text-gray-500 shrink-0">
+              {/* Section header row: number | type dropdown | title input | remove */}
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs font-medium text-gray-400 dark:text-gray-500 shrink-0 w-4 text-center">
                   {i + 1}
                 </span>
                 <SelectInput
                   value={section.type}
                   onChange={v => updateSection(i, 'type', v)}
                   options={SECTION_TYPE_OPTIONS}
-                  className="w-40"
+                  className="w-36 shrink-0"
                 />
-                <span className="flex-1" />
+                <input
+                  className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                  value={section.title}
+                  onChange={e => updateSection(i, 'title', e.target.value)}
+                  placeholder="Section title (optional)"
+                  maxLength={150}
+                />
                 <button
                   type="button"
                   onClick={() => removeSection(i)}
-                  className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+                  className="shrink-0 rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 dark:hover:text-red-400"
                 >
                   ✕
                 </button>
               </div>
 
-              {/* Section title */}
-              <div className="mb-2">
-                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Section Title</label>
-                <input
-                  className={inputClass}
-                  value={section.title}
-                  onChange={e => updateSection(i, 'title', e.target.value)}
-                  placeholder="e.g. Counting by 2s, Group Activity…"
-                  maxLength={150}
-                />
-              </div>
-
               {/* Content */}
-              <div>
-                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Content *</label>
-                <textarea
-                  className={inputClass}
-                  rows={4}
-                  placeholder="Write your section content here…"
-                  value={section.content}
-                  onChange={e => updateSection(i, 'content', e.target.value)}
-                  required
-                />
-              </div>
+              <textarea
+                className={inputClass}
+                rows={4}
+                placeholder="Write your section content here…"
+                value={section.content}
+                onChange={e => updateSection(i, 'content', e.target.value)}
+                required
+              />
             </div>
           ))}
         </div>
