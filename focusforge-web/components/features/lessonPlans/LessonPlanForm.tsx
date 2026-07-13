@@ -151,24 +151,28 @@ export default function LessonPlanForm({ initial, onSubmit, onCancel, loading }:
 
               {/* Section title */}
               <div className="mb-2">
+                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Section Title</label>
                 <input
                   className={inputClass}
                   value={section.title}
                   onChange={e => updateSection(i, 'title', e.target.value)}
-                  placeholder="Section title (optional)"
+                  placeholder="e.g. Counting by 2s, Group Activity…"
                   maxLength={150}
                 />
               </div>
 
               {/* Content */}
-              <textarea
-                className={inputClass}
-                rows={4}
-                placeholder="Write your section content here…"
-                value={section.content}
-                onChange={e => updateSection(i, 'content', e.target.value)}
-                required
-              />
+              <div>
+                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Content *</label>
+                <textarea
+                  className={inputClass}
+                  rows={4}
+                  placeholder="Write your section content here…"
+                  value={section.content}
+                  onChange={e => updateSection(i, 'content', e.target.value)}
+                  required
+                />
+              </div>
             </div>
           ))}
         </div>
