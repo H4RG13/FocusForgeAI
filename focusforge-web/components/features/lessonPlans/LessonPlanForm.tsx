@@ -36,7 +36,7 @@ export default function LessonPlanForm({ initial, onSubmit, onCancel, loading }:
   const [subject,  setSubject]  = useState(initial?.subject  ?? '');
   const [grade,    setGrade]    = useState(initial?.grade_level ?? '');
   const [desc,     setDesc]     = useState(initial?.description ?? '');
-  const [duration, setDuration] = useState(initial?.duration_minutes ?? 60);
+  const [duration, setDuration] = useState<number | ''>(initial?.duration_minutes ?? 60);
   const [sections, setSections] = useState<SectionDraft[]>(
     initial?.sections?.map(s => ({ type: s.type, content: s.content, sort_order: s.sort_order })) ?? []
   );
@@ -52,7 +52,7 @@ export default function LessonPlanForm({ initial, onSubmit, onCancel, loading }:
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit({ title, subject, grade_level: grade, description: desc || undefined, duration_minutes: duration, sections });
+    await onSubmit({ title, subject, grade_level: grade, description: desc || undefined, duration_minutes: duration || 60, sections });
   };
 
   const inputClass = 'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100';
@@ -79,7 +79,7 @@ export default function LessonPlanForm({ initial, onSubmit, onCancel, loading }:
         </div>
         <div>
           <label className={labelClass}>Duration (minutes)</label>
-          <input className={inputClass} type="number" min={5} max={480} value={duration} onChange={e => setDuration(Number(e.target.value))} />
+          <input className={inputClass} type="number" min={5} max={480} value={duration} onChange={e => setDuration(e.target.value === '' ? '' : Number(e.target.value))} />
         </div>
         <div className="sm:col-span-2">
           <label className={labelClass}>Description</label>
