@@ -1987,40 +1987,73 @@ Quality:
   □ Load testing (k6, 500 concurrent users)
 ```
 
-### Phase 5 — Teacher & Student Modes (Planned)
+### Phase 5 — Teacher & Student Modes (In Progress — Steps 1–4 Complete)
 
 ```
 Goal: Introduce role-based access control separating Teachers, Students, and Admins,
-      with a new Teacher workspace for lesson planning and elementary-focused quiz creation
+      with a new Teacher workspace for lesson planning and publishing content for students
 
 Roles:
   Student  — current system experience (tasks, notes, focus timer, AI quiz/summary)
-  Teacher  — lesson plan builder, AI image-enhanced quiz generator, publish plans/quizzes for any student to discover
-  Admin    — full access to all features across both modes + admin panel; can assign/change any user's role (Student ↔ Teacher)
+  Teacher  — lesson plan builder, publish plans/quizzes for any student to discover
+  Admin    — full access + admin panel; can assign/change any user's role (Student ↔ Teacher)
 
-Backend:
-  □ Add `role` column to users table (enum: student | teacher | admin)
-  □ Role-based middleware and policies (RoleMiddleware, Gate definitions)
-  □ LessonPlan model + CRUD endpoints (title, subject, grade_level, objectives, content)
-  □ LessonPlanSection model (supports multiple content blocks per plan)
-  □ Extend quiz generation to support image generation (DALL·E / GPT-4o vision)
-  □ GenerateQuizImageJob — generates child-appropriate illustrations per question
-  □ Store generated images in S3/R2, reference via quiz_items.image_url
-  □ Teachers publish lesson plans and quizzes (publicly discoverable by any student)
-  □ Students browse and take any published quiz / lesson plan independently
-  □ Student quiz attempt tracking (own history, no teacher-student link required)
+─────────────────────────────────────────────────────────────────
+Step 1 — Backend Role Foundation  ✓ DONE
+─────────────────────────────────────────────────────────────────
+  ✓ role enum migration (student | teacher | admin), migrated 'user' → 'student'
+  ✓ RoleMiddleware — middleware('role:teacher,admin') pattern
+  ✓ PATCH /admin/users/{user}/assign-role — admin assigns roles
+  ✓ role_audit_logs table — every role change logged (who, old → new, timestamp)
+  ✓ User helpers: isTeacher(), isStudent(), isAdmin()
 
-Frontend:
-  □ Role-aware navigation (sidebar items differ per role)
-  □ Teacher dashboard — class overview, pending plans, recent quiz results
-  □ Lesson plan builder UI (rich text editor, grade-level selector, objectives list)
-  □ Quiz generator with "include illustrations" toggle (elementary mode)
-  □ Image preview inside generated quiz questions
-  □ Teacher publish/unpublish toggle on lesson plans and quizzes
-  □ Student browse page — discover published lesson plans and quizzes from any teacher
-  □ Admin panel — user list with role badges, assign/change role per user (Student ↔ Teacher), system-wide stats
-  □ Role assignment endpoint: PATCH /api/admin/users/{id}/role (admin-only, validates enum)
-  □ Audit log entry on every role change (who changed it, old role → new role, timestamp)
+Step 2 — Admin Panel Role UI  ✓ DONE
+─────────────────────────────────────────────────────────────────
+  ✓ Admin user list with role badges (student / teacher / admin)
+  ✓ Role assignment dropdown (SelectInput) per user row
+  ✓ Role filter: All / Students / Teachers / Admins
+  ✓ Guards: cannot change own role, cannot change other admins
+
+Step 3 — Teacher Backend  ✓ DONE
+─────────────────────────────────────────────────────────────────
+  ✓ LessonPlan model + CRUD (title, subject, grade_level, description, duration)
+  ✓ LessonPlanSection model (type, title, content, sort_order per section)
+  ✓ LessonPlanPolicy — teachers/admins create; owner can publish; published = public
+  ✓ quizzes.is_published flag — teachers publish quizzes for student discovery
+  ✓ quiz_attempts table — tracks student quiz attempts (score, answers jsonb)
+  ✓ Import/export: JSON backup, Word (.docx) export, AI-powered import via Groq
+
+Step 4 — Teacher Frontend  ✓ DONE
+─────────────────────────────────────────────────────────────────
+  ✓ Role-aware sidebar — "📚 Lesson Plans" nav only for teacher/admin
+  ✓ Role badge in sidebar header (purple = teacher, red = admin)
+  ✓ Lesson plan list page — teacher sees own drafts + published; student sees all published
+  ✓ Lesson plan builder — title, subject, grade level, duration, description
+  ✓ Dynamic sections builder — type dropdown, optional title, content textarea
+  ✓ Publish/unpublish toggle from detail page
+  ✓ Export as JSON (backup) and Word (.docx) from detail page
+  ✓ Import from .json (instant) or .docx/.txt (AI-parsed via Groq) on new plan page
+
+─────────────────────────────────────────────────────────────────
+Step 5 — Student Experience  ○ PLANNED (not started)
+─────────────────────────────────────────────────────────────────
+  Goal: Give students a proper browse-and-learn experience for all published
+        teacher content, and let them take quizzes with attempt tracking.
+
+  Browse & Discovery:
+  □ Enhanced lesson plan browse — search by keyword, filter by subject + grade level
+  □ Lesson plan card grid with subject, grade, teacher name, section count
+  □ Published quizzes browse page — discover quizzes from any teacher
+
+  Quiz Attempts (backend already built, frontend needed):
+  □ Student opens a published quiz and takes it question-by-question
+  □ Submit flow — answers validated server-side, score calculated, saved to quiz_attempts
+  □ Results page — score, correct vs incorrect answers, explanations
+  □ Attempt history — student sees all past quiz scores in a history list
+
+  Polish:
+  □ Student profile shows total quizzes taken + average score
+  □ Bookmark/save a lesson plan for later (stretch goal)
 ```
 
 ### Phase 6 — AI Image Generation for Elementary Content (Planned)
