@@ -130,6 +130,7 @@ export type SectionType = 'introduction' | 'activity' | 'discussion' | 'assessme
 export interface LessonPlanSection {
   id: number;
   type: SectionType;
+  title: string | null;
   content: string;
   sort_order: number;
 }

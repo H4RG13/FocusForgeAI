@@ -64,6 +64,7 @@ class LessonPlanController extends Controller
             'duration_minutes' => ['integer', 'min:5', 'max:480'],
             'sections'         => ['nullable', 'array'],
             'sections.*.type'       => ['required', 'in:introduction,activity,discussion,assessment,wrap_up'],
+            'sections.*.title'      => ['nullable', 'string', 'max:150'],
             'sections.*.content'    => ['required', 'string'],
             'sections.*.sort_order' => ['integer', 'min:0'],
         ]);
@@ -101,6 +102,7 @@ class LessonPlanController extends Controller
             'duration_minutes' => ['sometimes', 'integer', 'min:5', 'max:480'],
             'sections'         => ['nullable', 'array'],
             'sections.*.type'       => ['required', 'in:introduction,activity,discussion,assessment,wrap_up'],
+            'sections.*.title'      => ['nullable', 'string', 'max:150'],
             'sections.*.content'    => ['required', 'string'],
             'sections.*.sort_order' => ['integer', 'min:0'],
         ]);

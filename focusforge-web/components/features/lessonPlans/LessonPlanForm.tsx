@@ -2,14 +2,15 @@
 
 import { useState } from 'react';
 import Button from '@/components/ui/Button';
-import { LessonPlan, LessonPlanSection, SectionType } from '@/types/domain.types';
+import SelectInput from '@/components/ui/SelectInput';
+import { LessonPlan, SectionType } from '@/types/domain.types';
 
-const SECTION_TYPES: { value: SectionType; label: string }[] = [
-  { value: 'introduction', label: 'Introduction'  },
-  { value: 'activity',     label: 'Activity'      },
-  { value: 'discussion',   label: 'Discussion'    },
-  { value: 'assessment',   label: 'Assessment'    },
-  { value: 'wrap_up',      label: 'Wrap Up'       },
+const SECTION_TYPE_OPTIONS = [
+  { value: 'introduction', label: 'Introduction' },
+  { value: 'activity',     label: 'Activity'     },
+  { value: 'discussion',   label: 'Discussion'   },
+  { value: 'assessment',   label: 'Assessment'   },
+  { value: 'wrap_up',      label: 'Wrap Up'      },
 ];
 
 const GRADE_LEVELS = [
@@ -18,8 +19,11 @@ const GRADE_LEVELS = [
   'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12',
 ];
 
+const GRADE_OPTIONS = GRADE_LEVELS.map(g => ({ value: g, label: g }));
+
 interface SectionDraft {
   type: SectionType;
+  title: string;
   content: string;
   sort_order: number;
 }
@@ -38,11 +42,16 @@ export default function LessonPlanForm({ initial, onSubmit, onCancel, loading }:
   const [desc,     setDesc]     = useState(initial?.description ?? '');
   const [duration, setDuration] = useState<number | ''>(initial?.duration_minutes ?? 60);
   const [sections, setSections] = useState<SectionDraft[]>(
-    initial?.sections?.map(s => ({ type: s.type, content: s.content, sort_order: s.sort_order })) ?? []
+    initial?.sections?.map(s => ({
+      type:       s.type,
+      title:      s.title ?? '',
+      content:    s.content,
+      sort_order: s.sort_order,
+    })) ?? []
   );
 
   const addSection = () =>
-    setSections(prev => [...prev, { type: 'introduction', content: '', sort_order: prev.length }]);
+    setSections(prev => [...prev, { type: 'introduction', title: '', content: '', sort_order: prev.length }]);
 
   const removeSection = (i: number) =>
     setSections(prev => prev.filter((_, idx) => idx !== i).map((s, idx) => ({ ...s, sort_order: idx })));
@@ -52,7 +61,14 @@ export default function LessonPlanForm({ initial, onSubmit, onCancel, loading }:
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit({ title, subject, grade_level: grade, description: desc || undefined, duration_minutes: duration || 60, sections });
+    await onSubmit({
+      title,
+      subject,
+      grade_level:       grade,
+      description:       desc || undefined,
+      duration_minutes:  duration || 60,
+      sections:          sections.map(s => ({ ...s, title: s.title || undefined })),
+    });
   };
 
   const inputClass = 'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100';
@@ -72,14 +88,23 @@ export default function LessonPlanForm({ initial, onSubmit, onCancel, loading }:
         </div>
         <div>
           <label className={labelClass}>Grade Level *</label>
-          <select className={inputClass} value={grade} onChange={e => setGrade(e.target.value)} required>
-            <option value="">Select grade…</option>
-            {GRADE_LEVELS.map(g => <option key={g} value={g}>{g}</option>)}
-          </select>
+          <SelectInput
+            value={grade}
+            onChange={setGrade}
+            options={GRADE_OPTIONS}
+            placeholder="Select grade…"
+          />
         </div>
         <div>
           <label className={labelClass}>Duration (minutes)</label>
-          <input className={inputClass} type="number" min={5} max={480} value={duration} onChange={e => setDuration(e.target.value === '' ? '' : Number(e.target.value))} />
+          <input
+            className={inputClass}
+            type="number"
+            min={5}
+            max={480}
+            value={duration}
+            onChange={e => setDuration(e.target.value === '' ? '' : Number(e.target.value))}
+          />
         </div>
         <div className="sm:col-span-2">
           <label className={labelClass}>Description</label>
@@ -103,15 +128,18 @@ export default function LessonPlanForm({ initial, onSubmit, onCancel, loading }:
         <div className="space-y-3">
           {sections.map((section, i) => (
             <div key={i} className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
+              {/* Section header row */}
               <div className="flex items-center gap-3 mb-3">
-                <select
-                  className="rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+                <span className="text-xs font-medium text-gray-400 dark:text-gray-500 shrink-0">
+                  {i + 1}
+                </span>
+                <SelectInput
                   value={section.type}
-                  onChange={e => updateSection(i, 'type', e.target.value)}
-                >
-                  {SECTION_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-                </select>
-                <span className="flex-1 text-xs text-gray-400 dark:text-gray-500">Section {i + 1}</span>
+                  onChange={v => updateSection(i, 'type', v)}
+                  options={SECTION_TYPE_OPTIONS}
+                  className="w-40"
+                />
+                <span className="flex-1" />
                 <button
                   type="button"
                   onClick={() => removeSection(i)}
@@ -120,6 +148,19 @@ export default function LessonPlanForm({ initial, onSubmit, onCancel, loading }:
                   ✕
                 </button>
               </div>
+
+              {/* Section title */}
+              <div className="mb-2">
+                <input
+                  className={inputClass}
+                  value={section.title}
+                  onChange={e => updateSection(i, 'title', e.target.value)}
+                  placeholder="Section title (optional)"
+                  maxLength={150}
+                />
+              </div>
+
+              {/* Content */}
               <textarea
                 className={inputClass}
                 rows={4}
@@ -136,7 +177,7 @@ export default function LessonPlanForm({ initial, onSubmit, onCancel, loading }:
       {/* Footer */}
       <div className="flex justify-end gap-3 pt-2 border-t border-gray-200 dark:border-gray-700">
         <Button type="button" variant="ghost" onClick={onCancel} disabled={loading}>Cancel</Button>
-        <Button type="submit" loading={loading}>{initial ? 'Save Changes' : 'Create Lesson Plan'}</Button>
+        <Button type="submit" loading={loading}>{initial?.id ? 'Save Changes' : 'Create Lesson Plan'}</Button>
       </div>
     </form>
   );

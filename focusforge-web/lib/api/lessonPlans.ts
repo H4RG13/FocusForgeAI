@@ -8,7 +8,7 @@ export interface LessonPlanPayload {
   grade_level: string;
   description?: string;
   duration_minutes?: number;
-  sections?: { type: string; content: string; sort_order: number }[];
+  sections?: { type: string; title?: string; content: string; sort_order: number }[];
 }
 
 export const lessonPlanApi = {

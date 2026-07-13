@@ -12,6 +12,7 @@ class LessonPlanSectionResource extends JsonResource
         return [
             'id'         => $this->id,
             'type'       => $this->type,
+            'title'      => $this->title,
             'content'    => $this->content,
             'sort_order' => $this->sort_order,
         ];

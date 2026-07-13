@@ -147,6 +147,9 @@ export default function LessonPlanDetailPage() {
                     {i + 1}. {SECTION_LABELS[section.type] ?? section.type}
                   </span>
                 </div>
+                {section.title && (
+                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">{section.title}</p>
+                )}
                 <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{section.content}</p>
               </div>
             ))}
