@@ -41,7 +41,7 @@ export default function NewLessonPlanPage() {
 
   return (
     <div className="flex flex-col">
-      <TopBar title="New Lesson Plan" />
+      <TopBar title="New Lesson Plan" backHref={ROUTES.LESSON_PLANS} />
       <div className="p-6 max-w-3xl">
 
         {/* Import toolbar */}

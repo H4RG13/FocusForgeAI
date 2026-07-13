@@ -30,7 +30,7 @@ export default function EditLessonPlanPage() {
   if (isLoading) {
     return (
       <div className="flex flex-col">
-        <TopBar title="Edit Lesson Plan" />
+        <TopBar title="Edit Lesson Plan" backHref={ROUTES.LESSON_PLAN(Number(id))} />
         <div className="p-6 max-w-3xl space-y-4">
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />

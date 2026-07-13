@@ -65,7 +65,7 @@ export default function LessonPlanDetailPage() {
 
   return (
     <div className="flex flex-col">
-      <TopBar title={plan.title} />
+      <TopBar title={plan.title} backHref={ROUTES.LESSON_PLANS} />
       <div className="p-6 max-w-3xl space-y-6">
 
         {/* Header */}
