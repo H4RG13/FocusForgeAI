@@ -30,7 +30,7 @@ interface SectionDraft {
 
 interface Props {
   initial?: Partial<LessonPlan>;
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: (data: any) => Promise<any>;
   onCancel: () => void;
   loading: boolean;
 }
