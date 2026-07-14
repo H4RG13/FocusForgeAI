@@ -164,6 +164,61 @@ class GroqClient implements AIClientInterface
         ];
     }
 
+    // -------------------------------------------------------- parseLessonPlan
+
+    public function parseLessonPlan(string $content): array
+    {
+        $content = $this->truncateContent($content, 2500);
+
+        $schema = "{\n"
+            . "  \"title\": \"lesson title\",\n"
+            . "  \"subject\": \"subject (e.g. Mathematics, Science, English)\",\n"
+            . "  \"grade_level\": \"grade level (e.g. Grade 5, Kindergarten)\",\n"
+            . "  \"description\": \"brief overview or objectives (1-3 sentences)\",\n"
+            . "  \"duration_minutes\": 60,\n"
+            . "  \"sections\": [\n"
+            . "    {\"type\": \"introduction\", \"content\": \"...\", \"sort_order\": 0}\n"
+            . "  ]\n"
+            . "}";
+
+        $messages = [
+            [
+                'role'    => 'system',
+                'content' => 'You are a lesson plan parser. Extract structured lesson plan data from the provided document text and return only valid JSON.',
+            ],
+            [
+                'role'    => 'user',
+                'content' => "Parse this lesson plan and return a JSON object matching this schema:\n{$schema}\n\n"
+                    . "Section type must be one of: introduction, activity, discussion, assessment, wrap_up\n"
+                    . "Return ONLY the JSON object — no explanation, no markdown fences.\n\n"
+                    . "Document:\n{$content}",
+            ],
+        ];
+
+        $response = $this->request('chat/completions', [
+            'model'       => $this->model,
+            'messages'    => $messages,
+            'max_tokens'  => 2000,
+            'temperature' => 0.3,
+        ]);
+
+        $raw   = $response['choices'][0]['message']['content'] ?? '{}';
+        $usage = $response['usage'] ?? [];
+
+        $start = strpos($raw, '{');
+        $end   = strrpos($raw, '}');
+        if ($start !== false && $end !== false && $end > $start) {
+            $raw = substr($raw, $start, $end - $start + 1);
+        }
+        $data = json_decode($raw, true) ?? [];
+
+        return array_merge($data, [
+            'prompt_tokens'     => $usage['prompt_tokens'] ?? 0,
+            'completion_tokens' => $usage['completion_tokens'] ?? 0,
+            'model'             => $response['model'] ?? $this->model,
+        ]);
+    }
+
     // ---------------------------------------------------------------- helpers
 
     /**

@@ -111,6 +111,25 @@ class MockAIClient implements AIClientInterface
         ];
     }
 
+    public function parseLessonPlan(string $content): array
+    {
+        sleep(1);
+
+        return [
+            'title'            => 'Imported Lesson Plan',
+            'subject'          => 'General',
+            'grade_level'      => 'Grade 5',
+            'description'      => 'This lesson plan was imported from a document.',
+            'duration_minutes' => 60,
+            'sections'         => [
+                ['type' => 'introduction', 'content' => 'Review the content from the imported document.', 'sort_order' => 0],
+            ],
+            'prompt_tokens'     => 0,
+            'completion_tokens' => 0,
+            'model'             => 'mock',
+        ];
+    }
+
     private function quizTemplates(string $title): array
     {
         return [

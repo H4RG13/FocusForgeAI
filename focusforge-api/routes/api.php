@@ -96,12 +96,15 @@ Route::prefix('v1')->group(function () {
         Route::delete('quizzes/{quiz}',           [QuizController::class, 'destroy']);
 
         // Lesson Plans — teachers create/edit; students browse published
-        Route::get('lesson-plans',                          [LessonPlanController::class, 'index']);
-        Route::get('lesson-plans/{lessonPlan}',             [LessonPlanController::class, 'show']);
-        Route::post('lesson-plans',                         [LessonPlanController::class, 'store']);
-        Route::put('lesson-plans/{lessonPlan}',             [LessonPlanController::class, 'update']);
-        Route::delete('lesson-plans/{lessonPlan}',          [LessonPlanController::class, 'destroy']);
-        Route::patch('lesson-plans/{lessonPlan}/publish',   [LessonPlanController::class, 'publish']);
-        Route::patch('lesson-plans/{lessonPlan}/unpublish', [LessonPlanController::class, 'unpublish']);
+        Route::get('lesson-plans',                               [LessonPlanController::class, 'index']);
+        Route::get('lesson-plans/{lessonPlan}',                  [LessonPlanController::class, 'show']);
+        Route::post('lesson-plans',                              [LessonPlanController::class, 'store']);
+        Route::put('lesson-plans/{lessonPlan}',                  [LessonPlanController::class, 'update']);
+        Route::delete('lesson-plans/{lessonPlan}',               [LessonPlanController::class, 'destroy']);
+        Route::patch('lesson-plans/{lessonPlan}/publish',        [LessonPlanController::class, 'publish']);
+        Route::patch('lesson-plans/{lessonPlan}/unpublish',      [LessonPlanController::class, 'unpublish']);
+        Route::get('lesson-plans/{lessonPlan}/export/json',      [LessonPlanController::class, 'exportJson']);
+        Route::get('lesson-plans/{lessonPlan}/export/docx',      [LessonPlanController::class, 'exportDocx']);
+        Route::middleware('throttle:20,1')->post('lesson-plans/import', [LessonPlanController::class, 'importFile']);
     });
 });

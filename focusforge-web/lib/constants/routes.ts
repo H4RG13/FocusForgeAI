@@ -12,4 +12,8 @@ export const ROUTES = {
   FOCUS: '/focus',
   ANALYTICS: '/analytics',
   AI_CHAT: '/ai-chat',
+  LESSON_PLANS: '/lesson-plans',
+  LESSON_PLAN_NEW: '/lesson-plans/new',
+  LESSON_PLAN: (id: number) => `/lesson-plans/${id}`,
+  LESSON_PLAN_EDIT: (id: number) => `/lesson-plans/${id}/edit`,
 } as const;

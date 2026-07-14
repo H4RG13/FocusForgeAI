@@ -125,6 +125,30 @@ export interface QuizQuestionResult {
   explanation: string;
 }
 
+export type SectionType = 'introduction' | 'activity' | 'discussion' | 'assessment' | 'wrap_up';
+
+export interface LessonPlanSection {
+  id: number;
+  type: SectionType;
+  title: string | null;
+  content: string;
+  sort_order: number;
+}
+
+export interface LessonPlan {
+  id: number;
+  title: string;
+  subject: string;
+  grade_level: string;
+  description: string | null;
+  duration_minutes: number;
+  is_published: boolean;
+  author?: { id: number; name: string };
+  sections?: LessonPlanSection[];
+  created_at: string;
+  updated_at: string;
+}
+
 export interface FocusSession {
   id: number;
   task_id: number | null;

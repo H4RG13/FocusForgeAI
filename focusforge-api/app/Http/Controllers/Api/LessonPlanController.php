@@ -2,11 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\AI\AIClientInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\LessonPlanResource;
 use App\Models\LessonPlan;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Str;
+use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\PhpWord;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use ZipArchive;
 
 class LessonPlanController extends Controller
 {
@@ -57,6 +64,7 @@ class LessonPlanController extends Controller
             'duration_minutes' => ['integer', 'min:5', 'max:480'],
             'sections'         => ['nullable', 'array'],
             'sections.*.type'       => ['required', 'in:introduction,activity,discussion,assessment,wrap_up'],
+            'sections.*.title'      => ['nullable', 'string', 'max:150'],
             'sections.*.content'    => ['required', 'string'],
             'sections.*.sort_order' => ['integer', 'min:0'],
         ]);
@@ -94,6 +102,7 @@ class LessonPlanController extends Controller
             'duration_minutes' => ['sometimes', 'integer', 'min:5', 'max:480'],
             'sections'         => ['nullable', 'array'],
             'sections.*.type'       => ['required', 'in:introduction,activity,discussion,assessment,wrap_up'],
+            'sections.*.title'      => ['nullable', 'string', 'max:150'],
             'sections.*.content'    => ['required', 'string'],
             'sections.*.sort_order' => ['integer', 'min:0'],
         ]);
@@ -141,5 +150,171 @@ class LessonPlanController extends Controller
         $lessonPlan->update(['is_published' => false]);
 
         return response()->json(['message' => 'Lesson plan unpublished.', 'data' => new LessonPlanResource($lessonPlan)]);
+    }
+
+    // GET /lesson-plans/{lessonPlan}/export/json
+    public function exportJson(LessonPlan $lessonPlan): Response
+    {
+        $this->authorize('view', $lessonPlan);
+        $lessonPlan->load('sections');
+
+        $data = [
+            'title'            => $lessonPlan->title,
+            'subject'          => $lessonPlan->subject,
+            'grade_level'      => $lessonPlan->grade_level,
+            'description'      => $lessonPlan->description,
+            'duration_minutes' => $lessonPlan->duration_minutes,
+            'sections'         => $lessonPlan->sections
+                ->sortBy('sort_order')
+                ->values()
+                ->map(fn($s) => [
+                    'type'       => $s->type,
+                    'content'    => $s->content,
+                    'sort_order' => $s->sort_order,
+                ])->toArray(),
+        ];
+
+        $filename = Str::slug($lessonPlan->title) . '-lesson-plan.json';
+
+        return response(
+            json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
+            200,
+            [
+                'Content-Type'        => 'application/json',
+                'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+                'Cache-Control'       => 'no-cache, no-store',
+            ]
+        );
+    }
+
+    // GET /lesson-plans/{lessonPlan}/export/docx
+    public function exportDocx(LessonPlan $lessonPlan): StreamedResponse
+    {
+        $this->authorize('view', $lessonPlan);
+        $lessonPlan->load('sections', 'user');
+
+        $phpWord = new PhpWord();
+        $phpWord->setDefaultFontName('Calibri');
+        $phpWord->setDefaultFontSize(11);
+        $phpWord->addTitleStyle(1, ['name' => 'Calibri', 'size' => 20, 'bold' => true, 'color' => '1F2937']);
+        $phpWord->addTitleStyle(2, ['name' => 'Calibri', 'size' => 14, 'bold' => true, 'color' => '374151']);
+        $phpWord->addTitleStyle(3, ['name' => 'Calibri', 'size' => 11, 'bold' => true, 'color' => '4F46E5']);
+
+        $sec     = $phpWord->addSection();
+        $metaFmt = ['name' => 'Calibri', 'size' => 10, 'color' => '6B7280'];
+
+        $sec->addTitle($lessonPlan->title, 1);
+        $sec->addTextRun()->addText(
+            "{$lessonPlan->subject}  |  {$lessonPlan->grade_level}  |  {$lessonPlan->duration_minutes} minutes",
+            $metaFmt
+        );
+        if ($lessonPlan->user) {
+            $sec->addTextRun()->addText("By: {$lessonPlan->user->name}", $metaFmt);
+        }
+        $sec->addTextBreak(1);
+
+        if ($lessonPlan->description) {
+            $sec->addTitle('Overview', 2);
+            $sec->addText($lessonPlan->description);
+            $sec->addTextBreak(1);
+        }
+
+        $sectionLabels = [
+            'introduction' => 'Introduction',
+            'activity'     => 'Activity',
+            'discussion'   => 'Discussion',
+            'assessment'   => 'Assessment',
+            'wrap_up'      => 'Wrap Up',
+        ];
+
+        if ($lessonPlan->sections->isNotEmpty()) {
+            $sec->addTitle('Lesson Sections', 2);
+            $sec->addTextBreak(1);
+            foreach ($lessonPlan->sections->sortBy('sort_order')->values() as $i => $s) {
+                $label = ($i + 1) . '. ' . ($sectionLabels[$s->type] ?? $s->type);
+                $sec->addTitle($label, 3);
+                $sec->addText($s->content);
+                $sec->addTextBreak(1);
+            }
+        }
+
+        $filename = Str::slug($lessonPlan->title) . '-lesson-plan.docx';
+
+        return response()->stream(function () use ($phpWord) {
+            IOFactory::createWriter($phpWord, 'Word2007')->save('php://output');
+        }, 200, [
+            'Content-Type'        => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Cache-Control'       => 'no-cache, no-store',
+        ]);
+    }
+
+    // POST /lesson-plans/import
+    public function importFile(Request $request): JsonResponse
+    {
+        $this->authorize('create', LessonPlan::class);
+
+        $request->validate(['file' => ['required', 'file', 'max:5120']]);
+
+        $file      = $request->file('file');
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        if (!in_array($extension, ['json', 'docx', 'txt'])) {
+            return response()->json(['message' => 'Only .json, .docx, and .txt files are supported.'], 422);
+        }
+
+        // JSON — parse directly, no AI needed
+        if ($extension === 'json') {
+            $content = json_decode(file_get_contents($file->getRealPath()), true);
+            if (!$content || !isset($content['title'])) {
+                return response()->json(['message' => 'Invalid lesson plan JSON file.'], 422);
+            }
+            return response()->json(['data' => $this->sanitizeImportData($content)]);
+        }
+
+        // Extract text
+        $text = '';
+        if ($extension === 'docx') {
+            $zip = new ZipArchive();
+            if ($zip->open($file->getRealPath()) === true) {
+                $xml  = $zip->getFromName('word/document.xml');
+                $zip->close();
+                $text = trim(preg_replace('/\s+/', ' ', strip_tags($xml)));
+            }
+        } else {
+            $text = trim((string) file_get_contents($file->getRealPath()));
+        }
+
+        if (empty($text)) {
+            return response()->json(['message' => 'Could not extract text from the file.'], 422);
+        }
+
+        $ai     = app(AIClientInterface::class);
+        $parsed = $ai->parseLessonPlan($text);
+
+        return response()->json(['data' => $this->sanitizeImportData($parsed)]);
+    }
+
+    private function sanitizeImportData(array $data): array
+    {
+        $valid    = ['introduction', 'activity', 'discussion', 'assessment', 'wrap_up'];
+        $sections = [];
+
+        foreach ($data['sections'] ?? [] as $i => $s) {
+            $sections[] = [
+                'type'       => in_array($s['type'] ?? '', $valid) ? $s['type'] : 'introduction',
+                'content'    => (string) ($s['content'] ?? ''),
+                'sort_order' => (int)    ($s['sort_order'] ?? $i),
+            ];
+        }
+
+        return [
+            'title'            => (string) ($data['title']            ?? ''),
+            'subject'          => (string) ($data['subject']          ?? ''),
+            'grade_level'      => (string) ($data['grade_level']      ?? ''),
+            'description'      => (string) ($data['description']      ?? ''),
+            'duration_minutes' => (int)    ($data['duration_minutes'] ?? 60),
+            'sections'         => $sections,
+        ];
     }
 }

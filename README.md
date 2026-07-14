@@ -1987,40 +1987,145 @@ Quality:
   □ Load testing (k6, 500 concurrent users)
 ```
 
-### Phase 5 — Teacher & Student Modes (Planned)
+### Phase 5 — Teacher & Student Modes (In Progress — Steps 1–4 Complete)
 
 ```
 Goal: Introduce role-based access control separating Teachers, Students, and Admins,
-      with a new Teacher workspace for lesson planning and elementary-focused quiz creation
+      with a new Teacher workspace for lesson planning and publishing content for students
 
 Roles:
   Student  — current system experience (tasks, notes, focus timer, AI quiz/summary)
-  Teacher  — lesson plan builder, AI image-enhanced quiz generator, publish plans/quizzes for any student to discover
-  Admin    — full access to all features across both modes + admin panel; can assign/change any user's role (Student ↔ Teacher)
+  Teacher  — lesson plan builder, publish plans/quizzes for any student to discover
+  Admin    — full access + admin panel; can assign/change any user's role (Student ↔ Teacher)
+
+─────────────────────────────────────────────────────────────────
+Step 1 — Backend Role Foundation  ✓ DONE
+─────────────────────────────────────────────────────────────────
+  ✓ role enum migration (student | teacher | admin), migrated 'user' → 'student'
+  ✓ RoleMiddleware — middleware('role:teacher,admin') pattern
+  ✓ PATCH /admin/users/{user}/assign-role — admin assigns roles
+  ✓ role_audit_logs table — every role change logged (who, old → new, timestamp)
+  ✓ User helpers: isTeacher(), isStudent(), isAdmin()
+
+Step 2 — Admin Panel Role UI  ✓ DONE
+─────────────────────────────────────────────────────────────────
+  ✓ Admin user list with role badges (student / teacher / admin)
+  ✓ Role assignment dropdown (SelectInput) per user row
+  ✓ Role filter: All / Students / Teachers / Admins
+  ✓ Guards: cannot change own role, cannot change other admins
+
+Step 3 — Teacher Backend  ✓ DONE
+─────────────────────────────────────────────────────────────────
+  ✓ LessonPlan model + CRUD (title, subject, grade_level, description, duration)
+  ✓ LessonPlanSection model (type, title, content, sort_order per section)
+  ✓ LessonPlanPolicy — teachers/admins create; owner can publish; published = public
+  ✓ quizzes.is_published flag — teachers publish quizzes for student discovery
+  ✓ quiz_attempts table — tracks student quiz attempts (score, answers jsonb)
+  ✓ Import/export: JSON backup, Word (.docx) export, AI-powered import via Groq
+
+Step 4 — Teacher Frontend  ✓ DONE
+─────────────────────────────────────────────────────────────────
+  ✓ Role-aware sidebar — "📚 Lesson Plans" nav only for teacher/admin
+  ✓ Role badge in sidebar header (purple = teacher, red = admin)
+  ✓ Lesson plan list page — teacher sees own drafts + published; student sees all published
+  ✓ Lesson plan builder — title, subject, grade level, duration, description
+  ✓ Dynamic sections builder — type dropdown, optional title, content textarea
+  ✓ Publish/unpublish toggle from detail page
+  ✓ Export as JSON (backup) and Word (.docx) from detail page
+  ✓ Import from .json (instant) or .docx/.txt (AI-parsed via Groq) on new plan page
+
+─────────────────────────────────────────────────────────────────
+Step 5 — Student Experience  ○ PLANNED (not started)
+─────────────────────────────────────────────────────────────────
+  Goal: Give students a proper browse-and-learn experience for all published
+        teacher content, and let them take quizzes with attempt tracking.
+
+  Browse & Discovery:
+  □ Enhanced lesson plan browse — search by keyword, filter by subject + grade level
+  □ Lesson plan card grid with subject, grade, teacher name, section count
+  □ Published quizzes browse page — discover quizzes from any teacher
+
+  Quiz Attempts (backend already built, frontend needed):
+  □ Student opens a published quiz and takes it question-by-question
+  □ Submit flow — answers validated server-side, score calculated, saved to quiz_attempts
+  □ Results page — score, correct vs incorrect answers, explanations
+  □ Attempt history — student sees all past quiz scores in a history list
+
+  Polish:
+  □ Student profile shows total quizzes taken + average score
+  □ Bookmark/save a lesson plan for later (stretch goal)
+```
+
+### Phase 6 — AI Image Generation for Elementary Content (Planned)
+
+```
+Goal: Enrich lesson plans and quizzes with AI-generated illustrations that are
+      appropriate for elementary and kindergarten students. High school content
+      stays text-based by default. Images are grade-level gated, cost-controlled,
+      and stored persistently in cloud storage.
+
+Background:
+  Elementary and kindergarten learners benefit from visual aids alongside text.
+  High school learners (Grade 7–12) are text-based by default.
+  Teachers choose whether to enable images per lesson plan or quiz at creation time.
+
+Grade-Level Image Policy:
+  Grade Level         Images Default    Teacher Can Override
+  ──────────────────  ───────────────   ────────────────────
+  Kindergarten        ON                Yes (disable)
+  Grade 1 – 6         ON                Yes (disable)
+  Grade 7 – 10        OFF               Yes (enable)
+  Grade 11 – 12       OFF               Yes (enable)
+
+Cost Awareness:
+  - DALL·E 3 Standard: ~$0.04 per image (1024×1024)
+  - A 10-question quiz with images = ~$0.40 per generation
+  - A lesson plan with 5 sections = ~$0.20 per generation
+  - Teacher sees estimated cost before confirming image generation
+  - Admin can set a per-teacher monthly image budget cap (optional)
 
 Backend:
-  □ Add `role` column to users table (enum: student | teacher | admin)
-  □ Role-based middleware and policies (RoleMiddleware, Gate definitions)
-  □ LessonPlan model + CRUD endpoints (title, subject, grade_level, objectives, content)
-  □ LessonPlanSection model (supports multiple content blocks per plan)
-  □ Extend quiz generation to support image generation (DALL·E / GPT-4o vision)
-  □ GenerateQuizImageJob — generates child-appropriate illustrations per question
-  □ Store generated images in S3/R2, reference via quiz_items.image_url
-  □ Teachers publish lesson plans and quizzes (publicly discoverable by any student)
-  □ Students browse and take any published quiz / lesson plan independently
-  □ Student quiz attempt tracking (own history, no teacher-student link required)
+  □ Add `with_images` boolean to quiz and lesson plan generation requests
+  □ GenerateQuizImageJob — for each quiz question, send a DALL·E 3 prompt
+      describing a child-appropriate scene relevant to the question
+  □ GenerateLessonImageJob — one image per lesson plan section
+  □ Image prompt strategy:
+      - GPT-4o first describes the ideal illustration in one sentence
+      - That description is sent to DALL·E 3 as the actual image prompt
+      - Style instruction: "flat vector illustration, bright colours,
+        child-friendly, no text, white background"
+  □ Upload generated images to S3/R2 (structured path: images/{type}/{id}/{index}.png)
+  □ quiz_questions.image_url   nullable string — set after GenerateQuizImageJob completes
+  □ lesson_plan_sections.image_url  nullable string — set after GenerateLessonImageJob
+  □ Regenerate endpoint: PATCH /quiz-questions/{id}/regenerate-image
+  □ Regenerate endpoint: PATCH /lesson-plan-sections/{id}/regenerate-image
 
 Frontend:
-  □ Role-aware navigation (sidebar items differ per role)
-  □ Teacher dashboard — class overview, pending plans, recent quiz results
-  □ Lesson plan builder UI (rich text editor, grade-level selector, objectives list)
-  □ Quiz generator with "include illustrations" toggle (elementary mode)
-  □ Image preview inside generated quiz questions
-  □ Teacher publish/unpublish toggle on lesson plans and quizzes
-  □ Student browse page — discover published lesson plans and quizzes from any teacher
-  □ Admin panel — user list with role badges, assign/change role per user (Student ↔ Teacher), system-wide stats
-  □ Role assignment endpoint: PATCH /api/admin/users/{id}/role (admin-only, validates enum)
-  □ Audit log entry on every role change (who changed it, old role → new role, timestamp)
+  □ "Include illustrations" toggle on quiz generation modal
+      - Auto-ON for Grade 1–6 / Kindergarten, auto-OFF for Grade 7–12
+      - Shows estimated cost: "~$0.40 for 10 questions"
+  □ "Include illustrations" toggle on lesson plan builder per-section
+  □ Quiz runner: show image above each question (skeleton while loading)
+  □ Lesson plan view: show image at top of each section card
+  □ Teacher can delete / regenerate individual images inline
+  □ Student quiz/lesson views: images shown automatically if present
+
+Image Prompt Engineering (examples):
+  Quiz question: "What is 3 + 4?"
+    → GPT-4o describes: "Three apples and four oranges arranged on a table"
+    → DALL·E prompt: "Three apples and four oranges on a wooden table,
+       flat vector illustration, bright colours, child-friendly, no text"
+
+  Lesson section type: "activity" about fractions
+    → GPT-4o describes: "A pizza cut into equal slices with one slice removed"
+    → DALL·E prompt: same description + style instruction
+
+Storage Structure:
+  S3/R2 bucket: focusforge-media
+    images/quiz-questions/{question_id}.png
+    images/lesson-sections/{section_id}.png
+  Public CDN URL returned and stored in image_url column.
+  Old image deleted from S3/R2 on regeneration.
 ```
 
 ---
@@ -2147,12 +2252,12 @@ Role Matrix:
   Admin Panel (all users/data)     ✗         ✗         ✓
   Assign / Change User Roles       ✗         ✗         ✓  ← admin decides who is Teacher or Student
 
-AI Image Generation for Quizzes:
-  - Teacher enables "Include Illustrations" when generating a quiz
-  - System prompt instructs GPT-4o to describe a child-appropriate illustration
-    per question; DALL·E 3 renders each image
-  - Images stored in S3/R2, thumbnails cached via CDN
-  - Students see question + illustration side-by-side during quiz
+AI Image Generation:
+  - Planned in Phase 6 (see roadmap above)
+  - Grade-gated: auto-ON for Kindergarten–Grade 6, auto-OFF for Grade 7–12
+  - Teacher can override the default per quiz or per lesson plan section
+  - DALL·E 3 renders child-appropriate illustrations; stored in S3/R2
+  - Students see images automatically when present; no extra action needed
 
 Lesson Plan Structure:
   LessonPlan
